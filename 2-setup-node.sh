@@ -12,3 +12,6 @@ sudo sed --in-place --expression "s/raspberrypi/cluster-node-${NODE_NUMBER}/" /e
 sudo apt-get update
 sudo apt-get upgrade --yes --fix-missing
 sudo apt autoremove
+
+# Reboot to finish updates and get hostname to stick
+sudo reboot
