@@ -5,27 +5,35 @@
 WIRELESS_SSID=$(jq -r '.["wifi-ssid"]' ../secrets/pipeline-creds.json)
 WIRELESS_PASSWORD=$(jq -r '.["wifi-password"]' ../secrets/pipeline-creds.json)
 
-if [ ! -d /Volumes/boot/ ]; then
+if [ ! -d /Volumes/system-boot/ ]; then
     echo Check that the SD card is mounted?
     exit 1
 fi
 
-# Create touchfile to enable ssh by default
-touch /Volumes/boot/ssh
-
 # Initialize the WiFi settings
-echo "country=us
-update_config=1
-ctrl_interface=/var/run/wpa_supplicant
-network={
- scan_ssid=1
- ssid=\"${WIRELESS_SSID}\"
- psk=\"${WIRELESS_PASSWORD}\"
-}" > /Volumes/boot/wpa_supplicant.conf
+NETWORK_FILE=/Volumes/system-boot/network-config
+yq \
+    --arg ssid "${WIRELESS_SSID}" \
+    --arg pass "${WIRELESS_PASSWORD}" \
+'. * {
+  "wifis": {
+    "wlan0": {
+      "dhcp4": true,
+      "optional": true,
+      "access-points": {
+        ($ssid): {
+          "password": $pass
+        }
+      }
+    }
+  }
+}' "${NETWORK_FILE}" --yaml-output | sed -e "s/password: ${WIRELESS_PASSWORD}/password: \"${WIRELESS_PASSWORD}\"/" > "${NETWORK_FILE}.new"
+mv "${NETWORK_FILE}.new" "${NETWORK_FILE}"
 
 # Enable cgroups
-if ! grep --quiet 'cgroup_enable' /Volumes/boot/cmdline.txt ; then
-    sed -i -e 's/$/ cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory/' /Volumes/boot/cmdline.txt
+CMDLINE_FILE=/Volumes/system-boot/cmdline.txt
+if ! grep --quiet 'cgroup_enable' "${CMDLINE_FILE}" ; then
+    sed -i -e 's/$/ cgroup_memory=1 cgroup_enable=memory/' "${CMDLINE_FILE}"
 fi
 
 echo "Done!"
