@@ -6,12 +6,14 @@ if [ -z "${NODE_NUMBER}" ]; then
 fi
 
 # Change hostname
-sudo sed --in-place --expression "s/raspberrypi/cluster-node-${NODE_NUMBER}/" /etc/hostname /etc/hosts
+sudo sed --in-place --expression "s/ubuntu/cluster-node-${NODE_NUMBER}/" /etc/hostname
+sudo hostname "cluster-node-${NODE_NUMBER}"
 
 # Update existing packages
 sudo apt-get update
 sudo apt-get upgrade --yes --fix-missing
 sudo apt autoremove
+sudo apt install avahi-daemon  # Enables mDNS, which allows for cluster-node-#.local to be advertised
 
 # Reboot to finish updates and get hostname to stick
 sudo reboot
