@@ -14,12 +14,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgresql
-  strategy: {}
+      app: concourse-db
   template:
     metadata:
       labels:
-        app: postgresql
+        app: concourse-db
     spec:
       containers:
       - name: postgres
