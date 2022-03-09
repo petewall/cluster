@@ -39,7 +39,7 @@ spec:
             secretKeyRef:
               name: concourse-db
               key: password
----      
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -49,10 +49,9 @@ metadata:
   namespace: concourse
 spec:
   ports:
-  - port: 5432
-    protocol: TCP
+  - protocol: TCP
+    port: 5432
     targetPort: 5432
   selector:
-    app: postgresql
+    app: concourse-db
   type: NodePort
-
