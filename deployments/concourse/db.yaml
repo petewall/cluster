@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: concourse-db-storage
+  namespace: concourse
+spec:
+  accessModes:
+  - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 500Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: concourse-db 
+  namespace: concourse
+  labels:
+    app: concourse-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: concourse-db
+  template:
+    metadata:
+      labels:
+        app: concourse-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:14.2
+        envFrom:
+        - secretRef:
+            name: concourse-db
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: concourse-db-storage
+      volumes:
+        - name: concourse-db-storage
+          persistentVolumeClaim:
+            claimName: concourse-db-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: concourse-db
+  namespace: concourse
+  labels:
+    app: concourse-db
+spec:
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: 5432
+  selector:
+    app: concourse-db
+  type: NodePort

@@ -4,11 +4,10 @@
 
 Based around <https://github.com/concourse/concourse-docker/blob/master/docker-compose.yml> from <https://github.com/concourse/concourse-docker>
 
-### Prerequisites
+Only deploys the database, since the concourse image itself doesn't run on ARM
 
-A secret
+## Network
 
-### TODO
+Deploys:
 
-* Needs to store data in a volume
-* Better service and an ingress to route from concourse-db.petewall.net to this service?
+* ddclient
