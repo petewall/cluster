@@ -13,7 +13,7 @@ sudo hostname "cluster-node-${NODE_NUMBER}"
 sudo apt-get update
 sudo apt-get upgrade --yes --fix-missing
 sudo apt autoremove
-sudo apt install avahi-daemon  # Enables mDNS, which allows for cluster-node-#.local to be advertised
+sudo apt install avahi-daemon net-tools  # Enables mDNS, which allows for cluster-node-#.local to be advertised
 
 # Reboot to finish updates and get hostname to stick
 sudo reboot
