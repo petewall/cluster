@@ -28,6 +28,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
 spec:
   rules:
   - host: ci.petewall.net
@@ -40,3 +41,7 @@ spec:
             name: concourse-web
             port:
               number: 8080
+  tls:
+  - hosts:
+    - ci.petewall.net
+    secretName: concourse-web-tls
