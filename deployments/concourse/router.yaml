@@ -26,10 +26,9 @@ metadata:
   name: concourse-web
   namespace: concourse
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  ingressClassName: public
   rules:
   - host: ci.petewall.net
     http:
