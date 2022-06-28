@@ -23,7 +23,7 @@ spec:
         - containerPort: 2368
         env:
         - name: url
-          value: https://blog.petewall.net
+          value: https://petewall.net
 ---
 apiVersion: v1
 kind: Service
@@ -33,7 +33,7 @@ metadata:
   labels:
     app: ghost
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: ghost
   ports:
@@ -51,7 +51,7 @@ metadata:
 spec:
   ingressClassName: public
   rules:
-  - host: blog.petewall.net
+  - host: petewall.net
     http:
       paths:
       - path: /
@@ -63,5 +63,5 @@ spec:
               number: 2368
   tls:
   - hosts:
-    - blog.petewall.net
+    - petewall.net
     secretName: ghost-tls
