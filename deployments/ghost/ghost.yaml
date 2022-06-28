@@ -1,25 +1,67 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
-  labels:
-    app: ghost
   name: ghost
   namespace: ghost
+  labels:
+    app: ghost
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: ghost
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: ghost
     spec:
       containers:
       - image: ghost:5.2.3
         name: ghost
-        resources: {}
-status: {}
+        ports:
+        - containerPort: 2368
+        env:
+        - name: url
+          value: https://blog.petewall.net
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ghost
+  namespace: ghost
+  labels:
+    app: ghost
+spec:
+  type: LoadBalancer
+  selector:
+    app: ghost
+  ports:
+  - protocol: TCP
+    port: 2368
+    targetPort: 2368
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ghost
+  namespace: ghost
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: public
+  rules:
+  - host: blog.petewall.net
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ghost
+            port:
+              number: 2368
+  tls:
+  - hosts:
+    - blog.petewall.net
+    secretName: ghost-tls

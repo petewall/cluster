@@ -1,5 +1,3 @@
 #!/usr/bin/env bash
 
-kubectl apply -f namespace.yaml
-kubectl apply -f ../../../secrets/ddclient-secret.yaml
-kubectl apply -f ddclient.yaml
+kapp deploy -a network -f namespace.yaml -f ../../../secrets/ddclient-secret.yaml -f ddclient.yaml
