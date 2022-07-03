@@ -1,19 +1,24 @@
 #!/bin/bash
 
-NODE_NUMBER=$1
-if [ -z "${NODE_NUMBER}" ]; then
-    echo "USAGE: setup-node.sh <node number>"
-fi
-
-# Change hostname
-sudo sed --in-place --expression "s/ubuntu/cluster-node-${NODE_NUMBER}/" /etc/hostname
-sudo hostname "cluster-node-${NODE_NUMBER}"
-
-# Update existing packages
-sudo apt-get update
-sudo apt-get upgrade --yes --fix-missing
+# Update and install packages
+sudo apt update
+sudo apt upgrade --yes --fix-missing
 sudo apt autoremove
-sudo apt install avahi-daemon net-tools  # Enables mDNS, which allows for cluster-node-#.local to be advertised
+sudo apt install net-tools vim
+
+# Install Carvel tools
+wget -O- https://carvel.dev/install.sh > install.sh
+sudo bash install.sh
+rm install.sh
+
+# Create hostpath storage directory
+sudo mkdir /data/cluster-storage
+sudo chown kubernetes:kubernetes /data/cluster-storage/
+cd /var/snap/microk8s/common
+sudo rm default-storage
+sudo ln -s /data/cluster-storage default-storage
+
+# Add id_rsa.pub to ~/.ssh/authorized_keys
 
 # Reboot to finish updates and get hostname to stick
 sudo reboot

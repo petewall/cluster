@@ -1,4 +1,17 @@
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ghost-storage
+  namespace: ghost
+spec:
+  accessModes:
+  - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,6 +37,13 @@ spec:
         env:
         - name: url
           value: https://petewall.net
+        volumeMounts:
+        - name: ghost-storage
+          mountPath: /var/lib/ghost/content
+      volumes:
+      - name: ghost-storage
+        persistentVolumeClaim:
+          claimName: ghost-storage
 ---
 apiVersion: v1
 kind: Service

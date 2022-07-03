@@ -1,11 +1,11 @@
 #!/bin/bash
 
-USB_DRIVE_MOUNT_PATH=/mnt/usb
+sudo microk8s enable dns
+sudo microk8s enable helm3
+sudo microk8s enable hostpath-storage
+sudo microk8s enable ingress
 
-sudo mount --bind "${USB_DRIVE_MOUNT_PATH}" /var/snap/microk8s/common/default-storage/
+echo "alias kubectl='sudo microk8s kubectl'" >> ~/.bash_aliases
+echo "alias helm='sudo microk8s helm3'" >> ~/.bash_aliases
 
-sudo snap install microk8s --classic
-sudo microk8s enable dns helm3 ingress storage
-
-echo alias kubectl='sudo microk8s kubectl' >> ~/.bash_aliases
-echo alias helm='sudo microk8s helm3' >> ~/.bash_aliases
+sudo microk8s add-node
