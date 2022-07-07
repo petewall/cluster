@@ -1,17 +1,7 @@
 # Cluster
 
-## Node 0
+This repository is a record for how my Kubernetes cluster was created and configured. It also contains scripts and artifacts for my standard deployments.
 
-This node is the Raspberry Pi 400
+For setup information, go [here](setup/README.md).
 
-1. Flash RPi lite onto an SD card
-2. Run [1-setup-rpi-image.sh](1-setup-rpi-image.sh) script
-3. Run [2-setup-node.sh](2-setup-node.sh) script
-4. Run [3-setup-master.sh](3-setup-master.sh) script
-
-## Worker nodes
-
-1. Flash RPi lite onto an SD card
-2. Run [1-setup-rpi-image.sh](1-setup-rpi-image.sh) script
-3. Run [2-setup-node.sh](2-setup-node.sh) script
-4. Run [4-setup-worker.sh](4-setup-worker.sh) script
+For deployment information, go [here](deployment/README.md).
