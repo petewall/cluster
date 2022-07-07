@@ -61,14 +61,11 @@ sudo microk8s join ...
 
 ### Install the OS
 * Flash an SD card with a the [Ubuntu Server 22.04 LTS ARM64 image](https://ubuntu.com/raspberry-pi/server)
-* Anything else?
-* On first boot:
+  * Before writing, click the gear icon and:
   * Set the hostname
-```
-export NODE_NUMBER=0
-sudo sed --in-place --expression "s/ubuntu/cluster-node-${NODE_NUMBER}/" /etc/hostname
-sudo hostname "cluster-node-${NODE_NUMBER}"
-```
+  * Enable SSH
+  * Set the username and password
+* On first boot:
   * Update and add packages:
 ```
 sudo apt update
