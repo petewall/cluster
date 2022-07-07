@@ -76,8 +76,8 @@ sudo apt install avahi-daemon jq net-tools vim  # avahi-daemon enables mDNS, whi
   * Install Microk8s
 ```
 sudo snap install microk8s --classic
-echo alias kubectl='sudo microk8s kubectl' >> ~/.bash_aliases
-echo alias helm='sudo microk8s helm3' >> ~/.bash_aliases
+echo "alias kubectl='sudo microk8s kubectl'" >> ~/.bash_aliases
+echo "alias helm='sudo microk8s helm3'" >> ~/.bash_aliases
 
 sudo microk8s join ...
 ```
