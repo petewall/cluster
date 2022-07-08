@@ -1,0 +1,111 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: concourse-configuration
+  namespace: concourse
+data:
+  CONCOURSE_CONTAINERD_DNS_SERVER: "1.1.1.1,8.8.8.8"
+  CONCOURSE_EXTERNAL_URL: https://ci.petewall.net
+  CONCOURSE_GARDEN_DNS_SERVER: "1.1.1.1,8.8.8.8"
+  CONCOURSE_TSA_HOST: concourse-web:2222
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: concourse-web
+  namespace: concourse
+  labels:
+    app: concourse-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: concourse-web
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: concourse-web
+    spec:
+      initContainers:
+      - name: concourse-migration
+        image: concourse/concourse:7.8.1
+        args: ["migrate", "--migrate-to-latest-version"]
+        env:
+        - name: CONCOURSE_POSTGRES_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: concourse-db-configuration
+              key: POSTGRES_DB
+        - name: CONCOURSE_POSTGRES_HOST
+          valueFrom:
+            ...
+        - name: CONCOURSE_POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: concourse-db-configuration
+              key: POSTGRES_USER
+        envFrom:
+        - prefix: CONCOURSE_
+          secretRef:
+            name: concourse-db-user-password
+        - configMapRef:
+            name: concourse-configuration
+      containers:
+      - name: concourse-web
+        image: concourse/concourse:7.8.1
+        env:
+        - name: CONCOURSE_POSTGRES_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: concourse-db-configuration
+              key: POSTGRES_DB
+        - name: CONCOURSE_POSTGRES_HOST
+          valueFrom:
+            ...
+        - name: CONCOURSE_POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: concourse-db-configuration
+              key: POSTGRES_USER
+        envFrom:
+        - prefix: CONCOURSE_
+          secretRef:
+            name: concourse-db-user-password
+        - configMapRef:
+            name: concourse-configuration
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: concourse-web
+  namespace: concourse
+  labels:
+    app: concourse-web
+spec:
+  type: ClusterIP
+  ports:
+  - name: web
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: concourse-web
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: concourse-web
+  namespace: concourse
+spec:
+  rules:
+  - host: ci.petewall.net
+    http:
+      paths:
+      - path: /
+        backend:
+          service:
+            name: concourse-web
+            port:
+              number: 8080
