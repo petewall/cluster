@@ -1,24 +1,35 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
+---
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: Password
 metadata:
-  name: concourse-db-storage
+  name: concourse-db-user-password
   namespace: concourse
 spec:
-  accessModes:
-  - ReadWriteOnce
-  volumeMode: Filesystem
-  resources:
-    requests:
-      storage: 500Mi
+  length: 64
+  secretTemplate:
+    type: Opaque
+    stringData:
+      POSTGRES_PASSWORD: $(value)
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: concourse-db-configuration
+  namespace: concourse
+data:
+  PGDATA: /data/pgdata
+  POSTGRES_DB: concourse
+  POSTGRES_USER: concourse
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: concourse-db 
   namespace: concourse
   labels:
     app: concourse-db
 spec:
+  serviceName: "concourse-db"
   replicas: 1
   selector:
     matchLabels:
@@ -30,17 +41,29 @@ spec:
     spec:
       containers:
       - name: postgres
-        image: postgres:14.2
+        image: postgres:14.4
+        # env:
+        # - name: POSTGRES_PASSWORD
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: concourse-db-user-password
+        #       key: POSTGRES_PASSWORD
         envFrom:
+        - configMapRef:
+          name: concourse-db-configuration
         - secretRef:
-            name: concourse-db
+          name: concourse-db-user-password
         volumeMounts:
-        - mountPath: /var/lib/postgresql/data
+        - mountPath: /data
           name: concourse-db-storage
-      volumes:
-        - name: concourse-db-storage
-          persistentVolumeClaim:
-            claimName: concourse-db-storage
+  volumeClaimTemplates:
+  - metadata:
+      name: concourse-db-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -50,10 +73,10 @@ metadata:
   labels:
     app: concourse-db
 spec:
+  type: ClusterIP
+  selector:
+    app: concourse-db
   ports:
   - protocol: TCP
     port: 5432
     targetPort: 5432
-  selector:
-    app: concourse-db
-  type: NodePort

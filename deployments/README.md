@@ -2,8 +2,7 @@
 
 ## Network
 
-Deploys:
-* ddclient
+Deploys DynamicDNS Client
 
 ## Cert Manager
 
