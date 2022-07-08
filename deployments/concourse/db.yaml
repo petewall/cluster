@@ -42,17 +42,11 @@ spec:
       containers:
       - name: postgres
         image: postgres:14.4
-        # env:
-        # - name: POSTGRES_PASSWORD
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: concourse-db-user-password
-        #       key: POSTGRES_PASSWORD
         envFrom:
         - configMapRef:
-          name: concourse-db-configuration
+            name: concourse-db-configuration
         - secretRef:
-          name: concourse-db-user-password
+            name: concourse-db-user-password
         volumeMounts:
         - mountPath: /data
           name: concourse-db-storage
