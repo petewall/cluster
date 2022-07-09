@@ -1,0 +1,31 @@
+concourse:
+  web:
+    externalUrl: https://ci.petewall.net
+    kubernetes:
+      createTeamNamespaces: false
+
+web:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+    - ci.petewall.net
+    ingressClassName: public
+    tls:
+    - hosts:
+      - ci.petewall.net
+      secretName: concourse-web-tls
+
+worker:
+  enabled: true
+  replicas: 2
+
+postgresql:
+  enabled: true
+  auth:
+    password:
+
+secrets:
+  create: false

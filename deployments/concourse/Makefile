@@ -1,4 +1,19 @@
-deploy:
-	kapp deploy --app concourse \
+SHELL := /bin/bash
+
+chart/Chart.yaml: vendir.yml vendir.lock.yml
+	vendir sync
+
+concourse.yaml: chart/Chart.yaml values.yaml
+	helm template concourse chart \
+		--namespace concourse --create-namespace \
+		--values values.yaml > concourse.yaml
+
+deploy: concourse.yaml
+	kapp deploy \
+		--app concourse \
+		--into-ns concourse \
 		--file namespace.yaml \
-		--file db.yaml
+		--file <(ytt --file secrets.yaml \
+			--data-value username="$(shell op read op://Private/Concourse/username)" \
+			--data-value password="$(shell op read op://Private/Concourse/password)") \
+		--file concourse.yaml
