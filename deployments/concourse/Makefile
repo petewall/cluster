@@ -6,7 +6,11 @@ chart/Chart.yaml: vendir.yml vendir.lock.yml
 concourse.yaml: chart/Chart.yaml values.yaml
 	helm template concourse chart \
 		--namespace concourse --create-namespace \
-		--values values.yaml > concourse.yaml
+		--values <(ytt --file values.yaml \
+			--data-value pgusername="$(shell op read "op://Lab/Concourse PostgreSQL/username")" \
+			--data-value pgpassword="$(shell op read "op://Lab/Concourse PostgreSQL/password")" \
+			--data-value username="$(shell op read op://Private/Concourse/username)") \
+		> concourse.yaml
 
 deploy: concourse.yaml
 	kapp deploy \
