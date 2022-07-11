@@ -71,7 +71,10 @@ sudo microk8s join ...
 sudo apt update
 sudo apt upgrade --yes --fix-missing
 sudo apt autoremove
-sudo apt install avahi-daemon jq net-tools vim  # avahi-daemon enables mDNS, which allows for cluster-node-#.local to be advertised
+
+# avahi-daemon enables mDNS, which allows for cluster-node-#.local to be advertised
+# linux-modules-extra-raspi is required for Calico to function properly (https://microk8s.io/docs/troubleshooting)
+sudo apt install avahi-daemon jq linux-modules-extra-raspi net-tools vim
 ```
   * Install Microk8s
 ```
