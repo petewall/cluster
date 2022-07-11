@@ -8,6 +8,9 @@ concourse:
     externalUrl: https://ci.petewall.net
     kubernetes:
       createTeamNamespaces: false
+  worker:
+    #! Need to use containerd to avoid these issues: mounting "cgroup" to rootfs at "/sys/fs/cgroup" caused: invalid argument
+    runtime: containerd
 
 web:
   enabled: true
