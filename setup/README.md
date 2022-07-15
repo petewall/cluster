@@ -49,7 +49,7 @@ echo "alias helm='sudo microk8s helm3'" >> ~/.bash_aliases
 
 On the main-node:
 ```
-sudo microkus add-node
+sudo microk8s add-node
 ```
 
 On the new node:
@@ -61,6 +61,7 @@ sudo microk8s join ...
 
 ### Install the OS
 * Flash an SD card with a the [Ubuntu Server 22.04 LTS ARM64 image](https://ubuntu.com/raspberry-pi/server)
+  * Use the [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
   * Before writing, click the gear icon and:
   * Set the hostname
   * Enable SSH
