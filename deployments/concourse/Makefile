@@ -15,6 +15,7 @@ concourse.yaml: chart/Chart.yaml values.yaml
 deploy: concourse.yaml
 	kapp deploy \
 		--app concourse \
+		--diff-changes \
 		--into-ns concourse \
 		--file namespace.yaml \
 		--file <(ytt --file secrets.yaml \

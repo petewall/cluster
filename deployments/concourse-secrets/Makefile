@@ -3,6 +3,7 @@ SHELL := /bin/bash
 deploy: secrets.yaml
 	kapp deploy \
 		--app concourse-secrets \
+		--diff-changes \
 		--into-ns concourse-main \
 		--file <(ytt --file secrets.yaml \
 			--data-value dockerhub.username="$(shell op read "op://Private/Docker Hub/username")" \
