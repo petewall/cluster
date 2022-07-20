@@ -4,6 +4,26 @@ kind: Namespace
 metadata:
   name: ghost
 ---
+apiVersion: kapp.k14s.io/v1alpha1
+kind: Config
+rebaseRules:
+- path: [metadata, annotations, volume.kubernetes.io/selected-node]
+  type: copy
+  sources: [existing, new]
+  resourceMatchers:
+  - kindNamespaceNameMatcher:
+      kind: PersistentVolumeClaim
+      name: ghost-storage
+      namespace: ghost
+- path: [metadata, annotations, volume.kubernetes.io/storage-provisioner]
+  type: copy
+  sources: [existing, new]
+  resourceMatchers:
+  - kindNamespaceNameMatcher:
+      kind: PersistentVolumeClaim
+      name: ghost-storage
+      namespace: ghost
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
