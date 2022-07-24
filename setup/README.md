@@ -6,9 +6,9 @@ These are the steps required to deploy the nodes of the cluster
 
 ### Install the OS
 * Download and flash a USB drive with [Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server)
-* Install Ubuntu on the drive
-  * M.2 drive with ext4 partition mounted at /
-  * HDD with ext4 partition mounted at /data
+* Install Ubuntu
+  * HDD with ext4 partition mounted at /
+  * M.2 drive with ext4 partition mounted at /data
   * Pre-install `microk8s` and `docker` snap packages and enable OpenSSH server
   * Set the hostname `cluster-node-x`, username and password
 * On first boot
@@ -22,14 +22,6 @@ sudo apt install jq net-tools vim
 wget -O- https://carvel.dev/install.sh > install.sh
 sudo bash install.sh
 rm install.sh
-```
-  * Set up hostpath storage drive:
-```
-sudo mkdir /data/cluster-storage
-sudo chown kubernetes:kubernetes /data/cluster-storage/
-cd /var/snap/microk8s/common
-sudo rm default-storage
-sudo ln -s /data/cluster-storage default-storage
 ```
   * Add id_rsa.pub to ~/.ssh/authorized_keys
 
