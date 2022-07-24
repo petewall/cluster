@@ -1,0 +1,142 @@
+---
+apiVersion: secretgen.k14s.io/v1alpha1
+kind: Password
+metadata:
+  name: pihole-password
+  namespace: network
+spec:
+  length: 64
+  secretTemplate:
+    type: Opaque
+    stringData:
+      WEBPASSWORD: $(value)
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pihole-settings
+  namespace: network
+data:
+  ADMIN_EMAIL: pete@petewall.net
+  DNSSEC: "true"
+  PIHOLE_DNS_: 8.8.8.8;8.8.4.4
+  TZ: America/Chicago
+  WEBTHEME: default-dark
+---
+apiVersion: kapp.k14s.io/v1alpha1
+kind: Config
+rebaseRules:
+- path: [metadata, annotations, volume.kubernetes.io/selected-node]
+  type: copy
+  sources: [existing, new]
+  resourceMatchers:
+  - kindNamespaceNameMatcher:
+      kind: PersistentVolumeClaim
+      name: pihole-storage
+      namespace: network
+  - kindNamespaceNameMatcher:
+      kind: PersistentVolumeClaim
+      name: pihole-dnsmasqd
+      namespace: network
+- path: [metadata, annotations, volume.kubernetes.io/storage-provisioner]
+  type: copy
+  sources: [existing, new]
+  resourceMatchers:
+  - kindNamespaceNameMatcher:
+      kind: PersistentVolumeClaim
+      name: pihole-storage
+      namespace: network
+  - kindNamespaceNameMatcher:
+      kind: PersistentVolumeClaim
+      name: pihole-dnsmasqd
+      namespace: network
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pihole-storage
+  namespace: network
+spec:
+  accessModes:
+  - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pihole-dnsmasqd
+  namespace: network
+spec:
+  accessModes:
+  - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pihole
+  namespace: network
+  labels:
+    app: pihole
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pihole
+  template:
+    metadata:
+      labels:
+        app: pihole
+        name: pihole
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: cluster-node-0
+      containers:
+      - name: pihole
+        image: pihole/pihole:latest
+        envFrom:
+        - configMapRef:
+            name: pihole-settings
+        - secretRef:
+            name: pihole-password
+        volumeMounts:
+        - name: pihole-storage
+          mountPath: /etc/pihole
+        - name: pihole-dnsmasqd
+          mountPath: /etc/dnsmasq.d
+      volumes:
+      - name: pihole-storage
+        persistentVolumeClaim:
+          claimName: pihole-storage
+      - name: pihole-dnsmasqd
+        persistentVolumeClaim:
+          claimName: pihole-dnsmasqd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pihole
+  namespace: network
+spec:
+  selector:
+    app: pihole
+  ports:
+  - port: 8000
+    targetPort: 80
+    name: pihole-admin
+  - port: 53
+    targetPort: 53
+    protocol: TCP
+    name: dns-tcp
+  - port: 53
+    targetPort: 53
+    protocol: UDP
+    name: dns-udp
+  externalIPs:
+  - 192.168.2.10
