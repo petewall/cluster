@@ -1,5 +1,10 @@
 SHELL := /bin/bash
 
+.PHONY: clean deploy
+
+clean:
+	rm -rf chart concourse.yaml
+
 chart/Chart.yaml: vendir.yml vendir.lock.yml
 	vendir sync
 
