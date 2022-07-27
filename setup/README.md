@@ -17,7 +17,7 @@ These are the steps required to deploy the nodes of the cluster
 sudo apt update
 sudo apt upgrade --yes --fix-missing
 sudo apt autoremove
-sudo apt install jq net-tools vim
+sudo apt install fwupd jq net-tools vim
 
 wget -O- https://carvel.dev/install.sh > install.sh
 sudo bash install.sh
