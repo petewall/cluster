@@ -1,3 +1,7 @@
+SHELL := /bin/bash
+
+.PHONY: deploy
+
 deploy:
 	kapp deploy --app secretgen-controller \
 		--into-ns secretgen-controller \

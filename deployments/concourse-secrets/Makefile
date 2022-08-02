@@ -1,5 +1,7 @@
 SHELL := /bin/bash
 
+.PHONY: deploy
+
 deploy: secrets.yaml
 	kapp deploy \
 		--app concourse-secrets \

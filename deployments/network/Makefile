@@ -1,5 +1,7 @@
 SHELL := /bin/bash
 
+.PHONY: deploy
+
 ddclient-secret.yaml:
 	kubectl create secret generic ddclient -n network --from-file ddclient.conf=<(op read op://Lab/Dynamic\ DNS/ddclient.conf) --dry-run=client -o yaml > ddclient-secret.yaml
 

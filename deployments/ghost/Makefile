@@ -1,5 +1,7 @@
 SHELL := /bin/bash
 
+.PHONY: deploy
+
 deploy: ghost.yaml
 	kapp deploy \
 		--app ghost \

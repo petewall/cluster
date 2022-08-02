@@ -1,8 +1,17 @@
 # Concourse
 
-## TODO
+This deploys [Concourse](https://concourse-ci.org/), the best CI/CD tool ever.
 
-### Concourse DB
+## Deployment process
 
-* Implement multiple replica statefulset
-* Add liveness and readiness probes
+This deployment utilizes the Concourse [Helm chart](https://github.com/concourse/concourse-chart), but it does not use Helm to deploy it. We utilize a combination of `helm`, `ytt`, and `vendir` to create a set of Kubernetes objects that then get deployed with `kapp`.
+
+![Deployment process](./images/deployment.png)
+
+![Architecture](./images/architecture.png)
+
+## Installing
+
+```bash
+make deploy
+```
