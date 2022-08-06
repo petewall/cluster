@@ -11,4 +11,5 @@ deploy: namespace.yaml ddclient-secret.yaml ddclient.yaml pi-hole.yaml
 		-f namespace.yaml \
 		-f ddclient-secret.yaml \
 		-f ddclient.yaml \
-		-f pi-hole.yaml
+		-f <(ytt --file pi-hole.yaml \
+			--data-value password="$(shell op read "op://Lab/Pi Hole/password")")
