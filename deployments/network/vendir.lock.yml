@@ -1,0 +1,9 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - helmChart:
+      appVersion: 2022.07.1
+      version: 2.9.1
+    path: pihole
+  path: charts
+kind: LockConfig

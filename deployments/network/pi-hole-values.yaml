@@ -1,0 +1,18 @@
+#@ load("@ytt:data", "data")
+---
+nodeSelector:
+  kubernetes.io/hostname: cluster-node-0
+admin:
+  existingSecret: pihole-password
+extraEnvVars:
+  ADMIN_EMAIL: pete@petewall.net
+  #! DNSSEC: "true"
+  TZ: America/Chicago
+  WEBTHEME: default-dark
+DNS1: "8.8.8.8"
+DNS2: "8.8.4.4"
+dnsmasq:
+  customDnsEntries:
+    - address=internal.petewall.net/192.168.2.10
+    - address=devices.internal.petewall.net/192.168.2.10
+hostNetwork: "true"
