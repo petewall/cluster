@@ -15,7 +15,7 @@ concourse.yaml: chart/Chart.yaml values.yaml
 			--data-value pgusername="$(shell op read "op://Lab/Concourse PostgreSQL/username")" \
 			--data-value pgpassword="$(shell op read "op://Lab/Concourse PostgreSQL/password")" \
 			--data-value username="$(shell op read op://Private/Concourse/username)") \
-		> concourse.yaml
+		| kbld -f - > concourse.yaml
 
 deploy: concourse.yaml
 	kapp deploy \
