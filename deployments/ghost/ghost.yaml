@@ -65,7 +65,7 @@ spec:
       securityContext:
         fsGroup: 1001
       containers:
-      - image: ghost:5.3
+      - image: ghost:5.5
         name: ghost
         env:
         - name: url
