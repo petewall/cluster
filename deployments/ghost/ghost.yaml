@@ -4,6 +4,13 @@ kind: Namespace
 metadata:
   name: ghost
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ghost
+  namespace: ghost
+automountServiceAccountToken: true
+---
 apiVersion: kapp.k14s.io/v1alpha1
 kind: Config
 rebaseRules:
@@ -54,14 +61,39 @@ spec:
       labels:
         app: ghost
     spec:
+      serviceAccountName: ghost
+      securityContext:
+        fsGroup: 1001
       containers:
-      - image: ghost:5.2.3
+      - image: ghost:5.3
         name: ghost
-        ports:
-        - containerPort: 2368
         env:
         - name: url
           value: https://petewall.net
+        ports:
+        - name: http
+          containerPort: 2368
+          protocol: TCP
+        # livenessProbe:
+        #   httpGet:
+        #     path: /
+        #     port: "http"
+        #     scheme: HTTP
+        #   initialDelaySeconds: 120
+        #   periodSeconds: 10
+        #   timeoutSeconds: 5
+        #   failureThreshold: 6
+        #   successThreshold: 1
+        # readinessProbe:
+        #   httpGet:
+        #     path: /
+        #     port: "http"
+        #     scheme: HTTP
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 5
+        #   timeoutSeconds: 3
+        #   failureThreshold: 6
+        #   successThreshold: 1
         volumeMounts:
         - name: ghost-storage
           mountPath: /var/lib/ghost/content

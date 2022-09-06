@@ -7,5 +7,5 @@ deploy: ghost.yaml
 		--app ghost \
 		--diff-changes \
 		--into-ns ghost \
-		--file ghost.yaml \
+		--file <(kbld -f ghost.yaml) \
 		--diff-changes
