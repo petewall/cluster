@@ -1,0 +1,23 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+directories:
+- path: charts
+  contents:
+  - path: grafana
+    helmChart:
+      name: grafana
+      # version: "1.8.20"
+      repository:
+        url: https://grafana.github.io/helm-charts
+  - path: influxdb
+    helmChart:
+      name: influxdb2
+      # version: "2.1.0"
+      repository:
+        url: https://helm.influxdata.com/
+  - path: telegraf
+    helmChart:
+      name: telegraf-ds
+      # version: "1.8.20"
+      repository:
+        url: https://helm.influxdata.com/

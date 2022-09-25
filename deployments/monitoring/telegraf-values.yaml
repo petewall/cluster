@@ -1,0 +1,14 @@
+image:
+  tag: "1.23"  # Overrides the default 1.23-alpine, which does not have arm architecture for the Raspberry Pi
+envFromSecret: influxdb-admin
+config:
+  docker_endpoint: ""
+  outputs:
+  - influxdb_v2:
+      urls:
+      - http://influxdb.monitoring.svc.cluster.local
+      token: "$INFLUXDB_TOKEN"
+      organization: wallhouse
+      bucket: cluster
+      user_agent: telegraf
+      timeout: "5s"
