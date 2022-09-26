@@ -1,6 +1,6 @@
 # Concourse
 
-This deploys [Concourse](https://concourse-ci.org/), the best CI/CD tool ever.
+This deploys [Concourse](https://concourse-ci.org/), the best CI/CD tool ever. I have written more information about the deployment process and my reasoning behind using specific tools on [my website](https://petewall.net/continuous-thing-doer/).
 
 ## Deployment process
 
