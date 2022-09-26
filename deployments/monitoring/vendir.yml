@@ -6,18 +6,18 @@ directories:
   - path: grafana
     helmChart:
       name: grafana
-      # version: "1.8.20"
+      version: "6.39.0"
       repository:
         url: https://grafana.github.io/helm-charts
   - path: influxdb
     helmChart:
       name: influxdb2
-      # version: "2.1.0"
+      version: "2.1.0"
       repository:
         url: https://helm.influxdata.com/
   - path: telegraf
     helmChart:
       name: telegraf-ds
-      # version: "1.8.20"
+      version: "1.1.3"
       repository:
         url: https://helm.influxdata.com/
