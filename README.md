@@ -4,4 +4,4 @@ This repository is a record for how my Kubernetes cluster was created and config
 
 For setup information, go [here](setup/README.md).
 
-For deployment information, go [here](deployment/README.md).
+For deployment information, go [here](deployments/README.md).
