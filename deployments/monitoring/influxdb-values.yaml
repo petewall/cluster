@@ -1,5 +1,0 @@
-fullnameOverride: influxdb
-adminUser:
-  organization: "wallhouse"
-  bucket: "cluster"
-  existingSecret: influxdb-admin

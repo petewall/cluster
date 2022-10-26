@@ -1,4 +1,4 @@
-charts/*
-influxdb.yaml
-grafana.yaml
-telegraf.yaml
+vendor/*
+grafana-agent.yaml
+grafana-agent-loki.yaml
+kube-state-metrics.yaml

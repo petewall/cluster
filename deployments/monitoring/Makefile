@@ -5,43 +5,46 @@ SHELL := /bin/bash
 clean:
 	rm -rf charts/* influxdb.yaml grafana.yaml telegraf.yaml
 
-charts/influxdb/Chart.yaml: vendir.yml vendir.lock.yml
+vendor/grafana-agent/production/kubernetes/agent-bare.yaml: vendir.yml vendir.lock.yml
 	vendir sync
 
-charts/grafana/Chart.yaml: vendir.yml vendir.lock.yml
+grafana-agent.yaml: vendor/grafana-agent/production/kubernetes/agent-bare.yaml
+	cat vendor/grafana-agent/production/kubernetes/agent-bare.yaml | NAMESPACE=monitoring envsubst | kbld -f - > grafana-agent.yaml
+
+vendor/grafana-agent/production/kubernetes/agent-loki.yaml:
 	vendir sync
 
-charts/telegraf/Chart.yaml: vendir.yml vendir.lock.yml
+grafana-agent-loki.yaml: vendor/grafana-agent/production/kubernetes/agent-loki.yaml
+	cat vendor/grafana-agent/production/kubernetes/agent-loki.yaml | NAMESPACE=monitoring envsubst | kbld -f - > grafana-agent-loki.yaml
+
+vendor/kube-state-metrics/Chart.yaml:
 	vendir sync
 
-influxdb.yaml: charts/influxdb/Chart.yaml influxdb-values.yaml
-	helm template influxdb charts/influxdb \
-		--namespace monitoring --create-namespace \
-		--values influxdb-values.yaml \
-		| kbld -f - > influxdb.yaml
+kube-state-metrics.yaml: vendor/kube-state-metrics/Chart.yaml
+	helm template kube-state-metrics vendor/kube-state-metrics --namespace monitoring | kbld -f - > kube-state-metrics.yaml
 
-grafana.yaml: charts/grafana/Chart.yaml grafana-values.yaml
-	helm template grafana charts/grafana \
-		--namespace monitoring --create-namespace \
-		--values grafana-values.yaml \
-		| kbld -f - > grafana.yaml
-
-telegraf.yaml: charts/telegraf/Chart.yaml telegraf-values.yaml
-	helm template telegraf-ds charts/telegraf \
-		--namespace monitoring --create-namespace \
-		--values telegraf-values.yaml \
-		| kbld -f - > telegraf.yaml
-
-deploy: config.yaml namespace.yaml secrets.yaml influxdb.yaml grafana.yaml telegraf.yaml
+deploy: namespace.yaml grafana-agent.yaml grafana-agent-loki.yaml grafana-agent-cm.yaml grafana-agent-logs-cm.yaml kube-state-metrics.yaml
 	kapp deploy \
 		--app monitoring \
 		--diff-changes \
 		--into-ns monitoring \
-		--file config.yaml \
 		--file namespace.yaml \
-		--file <(ytt --file secrets.yaml \
-			--data-value grafana.username="$(shell op read "op://Lab/Grafana/username")" \
-			--data-value grafana.password="$(shell op read "op://Lab/Grafana/password")") \
-		--file influxdb.yaml \
-		--file grafana.yaml \
-		--file telegraf.yaml
+		--file grafana-agent.yaml \
+		--file <(ytt -f grafana-agent-cm.yaml \
+			--data-value metrics.url="$(shell op read "op://Lab/Grafana Cloud Metrics/website")" \
+			--data-value metrics.username="$(shell op read "op://Lab/Grafana Cloud Metrics/username")" \
+			--data-value metrics.password="$(shell op read "op://Lab/Grafana Cloud Metrics/password")" \
+			--data-value logs.url="$(shell op read "op://Lab/Grafana Cloud Logs/website")" \
+			--data-value logs.username="$(shell op read "op://Lab/Grafana Cloud Logs/username")" \
+			--data-value logs.password="$(shell op read "op://Lab/Grafana Cloud Logs/password")" \
+		) \
+		--file <(ytt -f grafana-agent-logs-cm.yaml \
+			--data-value metrics.url="$(shell op read "op://Lab/Grafana Cloud Metrics/website")" \
+			--data-value metrics.username="$(shell op read "op://Lab/Grafana Cloud Metrics/username")" \
+			--data-value metrics.password="$(shell op read "op://Lab/Grafana Cloud Metrics/password")" \
+			--data-value logs.url="$(shell op read "op://Lab/Grafana Cloud Logs/website")" \
+			--data-value logs.username="$(shell op read "op://Lab/Grafana Cloud Logs/username")" \
+			--data-value logs.password="$(shell op read "op://Lab/Grafana Cloud Logs/password")" \
+		) \
+		--file grafana-agent-loki.yaml \
+		--file kube-state-metrics.yaml
