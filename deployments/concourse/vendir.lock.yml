@@ -2,8 +2,8 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - helmChart:
-      appVersion: 7.8.1
-      version: 17.0.29
+      appVersion: 7.8.3
+      version: 17.0.37
     path: .
   path: chart
 kind: LockConfig
