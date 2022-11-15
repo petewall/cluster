@@ -59,6 +59,7 @@ sudo microk8s join ...
   * Enable SSH
   * Set the username and password
 * On first boot:
+  * Enable cgroups (per [MicroK8s instructions](https://microk8s.io/docs/install-raspberry-pi):
   * Update and add packages:
 ```
 sudo apt update
