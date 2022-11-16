@@ -7,7 +7,7 @@ metrics:
   global:
     scrape_interval: 60s
     external_labels:
-      cluster: cloud
+      cluster: #@ data.values.cluster.name
   configs:
   - name: integrations
     remote_write:
@@ -31,7 +31,7 @@ logs:
         username: #@ data.values.logs.username
         password: #@ data.values.logs.password
       external_labels:
-        cluster: cloud
+        cluster: #@ data.values.cluster.name
     positions:
       filename: /tmp/positions.yaml
     target_config:

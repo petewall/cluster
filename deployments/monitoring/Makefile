@@ -31,6 +31,7 @@ deploy: namespace.yaml grafana-agent.yaml grafana-agent-loki.yaml grafana-agent-
 		--file namespace.yaml \
 		--file grafana-agent.yaml \
 		--file <(ytt -f grafana-agent-cm.yaml \
+			--data-values-file data.yaml \
 			--data-value metrics.url="$(shell op read "op://Lab/Grafana Cloud Metrics/website")" \
 			--data-value metrics.username="$(shell op read "op://Lab/Grafana Cloud Metrics/username")" \
 			--data-value metrics.password="$(shell op read "op://Lab/Grafana Cloud Metrics/password")" \
@@ -39,6 +40,7 @@ deploy: namespace.yaml grafana-agent.yaml grafana-agent-loki.yaml grafana-agent-
 			--data-value logs.password="$(shell op read "op://Lab/Grafana Cloud Logs/password")" \
 		) \
 		--file <(ytt -f grafana-agent-logs-cm.yaml \
+			--data-values-file data.yaml \
 			--data-value metrics.url="$(shell op read "op://Lab/Grafana Cloud Metrics/website")" \
 			--data-value metrics.username="$(shell op read "op://Lab/Grafana Cloud Metrics/username")" \
 			--data-value metrics.password="$(shell op read "op://Lab/Grafana Cloud Metrics/password")" \
