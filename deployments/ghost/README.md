@@ -1,6 +1,6 @@
 # Ghost
 
-This deploys [Ghost](https://ghost.org/), and open-source blogging platform.
+This deploys [Ghost](https://ghost.org/), an open-source blogging platform.
 
 ![Ghost architecture](./images/architecture.png)
 
