@@ -1,15 +1,9 @@
 apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
-  - git:
-      commitTitle: Release 0.27.1 (#2129)...
-      sha: 9fd7d9b325f78153b7b525ddda28d2a2d3e1ccb6
-      tags:
-      - v0.27.1
-    path: grafana-agent
   - helmChart:
-      appVersion: 2.6.0
-      version: 4.21.0
-    path: kube-state-metrics
+      appVersion: 0.28.0
+      version: 0.2.8
+    path: grafana-agent-operator
   path: vendor
 kind: LockConfig

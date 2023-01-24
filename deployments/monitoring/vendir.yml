@@ -3,14 +3,9 @@ kind: Config
 directories:
 - path: vendor
   contents:
-  - path: grafana-agent
-    git:
-      url: https://github.com/grafana/agent
-      ref: v0.27.1
-      depth: 1
-  - path: kube-state-metrics
+  - path: grafana-agent-operator
     helmChart:
-      name: kube-state-metrics
-      version: "4.21.0"
+      name: grafana-agent-operator
+      version: 0.2.8
       repository:
-        url: https://prometheus-community.github.io/helm-charts
+        url: https://grafana.github.io/helm-charts

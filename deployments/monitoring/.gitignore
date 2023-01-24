@@ -1,4 +1,2 @@
 vendor/*
-grafana-agent.yaml
-grafana-agent-loki.yaml
-kube-state-metrics.yaml
+grafana-agent-operator.yaml
