@@ -15,6 +15,7 @@ deploy: namespace.yaml grafana-agent-operator.yaml
 		--app monitoring \
 		--diff-changes \
 		--into-ns monitoring \
+		--file kapp-config.yaml \
 		--file namespace.yaml \
 		--file vendor/grafana-agent-operator/crds \
 		--file grafana-agent-operator.yaml \

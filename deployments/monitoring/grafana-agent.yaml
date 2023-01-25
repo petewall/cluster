@@ -472,8 +472,9 @@ spec:
     tlsConfig:
       insecureSkipVerify: true
   namespaceSelector:
-    matchNames:
-    - monitoring
+    any: true
+    # matchNames:
+    # - monitoring
   selector:
     matchLabels:
       app.kubernetes.io/name: kubelet
@@ -500,8 +501,9 @@ spec:
     path: /metrics
     port: http-metrics
   namespaceSelector:
-    matchNames:
-    - monitoring
+    any: true
+    # matchNames:
+    # - monitoring
   selector:
     matchLabels:
       app.kubernetes.io/name: kube-state-metrics
@@ -536,8 +538,9 @@ spec:
     tlsConfig:
       insecureSkipVerify: true
   namespaceSelector:
-    matchNames:
-    - monitoring
+    any: true
+    # matchNames:
+    # - monitoring
   selector:
     matchLabels:
       app.kubernetes.io/name: kubelet
