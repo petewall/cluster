@@ -20,6 +20,8 @@ deploy: namespace.yaml grafana-agent-operator.yaml
 		--file vendor/grafana-agent-operator/crds \
 		--file grafana-agent-operator.yaml \
 		--file grafana-agent.yaml \
+		--file kube-state-metrics.yaml \
+		--file concourse.yaml \
 		--file <(ytt -f secrets.yaml \
 			--data-value metrics.username="$(shell op read "op://Lab/Grafana Cloud Metrics/username")" \
 			--data-value metrics.password="$(shell op read "op://Lab/Grafana Cloud Metrics/password")" \
