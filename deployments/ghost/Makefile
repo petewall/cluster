@@ -8,4 +8,5 @@ deploy: ghost.yaml
 		--diff-changes \
 		--into-ns ghost \
 		--file <(kbld -f ghost.yaml) \
+		--file <(kbld -f ghost-db.yaml) \
 		--diff-changes
