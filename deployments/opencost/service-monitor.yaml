@@ -1,0 +1,24 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: opencost
+  namespace: monitoring
+  labels:
+    instance: primary
+spec:
+  endpoints:
+  - honorLabels: true
+    interval: 60s
+    path: /metrics
+    port: opencost
+    relabelings:
+    - action: replace
+      replacement: integrations/kubernetes/opencost
+      targetLabel: job
+  namespaceSelector:
+    matchNames:
+    - opencost
+  selector:
+    matchLabels:
+      name: opencost

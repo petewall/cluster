@@ -1,0 +1,11 @@
+#@ load("@ytt:overlay", "overlay")
+
+#@ deployments = overlay.subset({"kind": "Deployment"})
+#@ services = overlay.subset({"kind": "Service"})
+#@ serviceaccounts = overlay.subset({"kind": "ServiceAccount"})
+
+#@overlay/match by=overlay.or_op(deployments, services, serviceaccounts), expects="3+"
+---
+metadata:
+  #@overlay/match missing_ok=True
+  namespace: opencost
