@@ -3,7 +3,7 @@ SHELL := /bin/bash
 .PHONY: deploy
 
 charts/pihole/Chart.yaml: vendir.yml vendir.lock.yml
-	vendir sync
+	vendir sync --locked
 
 # pi-hole.yaml: charts/pihole/Chart.yaml pi-hole-values.yaml
 # 	helm template pihole charts/pihole \
