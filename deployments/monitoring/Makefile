@@ -22,7 +22,8 @@ deploy: namespace.yaml grafana-agent-operator.yaml
 		--file grafana-agent-operator.yaml \
 		--file <(ytt --data-value cluster.name=wallhouse --file grafana-agent.yaml) \
 		--file kube-state-metrics.yaml \
-		--file service-monitors \
+		--file service-monitor-cadvisor.yaml \
+		--file service-monitor-kubelet.yaml \
 		--file <(ytt --file secrets.yaml \
 			--data-value metrics.username="$(shell op read "op://Lab/Grafana Cloud Metrics/username")" \
 			--data-value metrics.password="$(shell op read "op://Lab/Grafana Cloud Metrics/password")" \

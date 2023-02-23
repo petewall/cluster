@@ -17,13 +17,16 @@ concourse.yaml: chart/Chart.yaml values.yaml
 			--data-value username="$(shell op read op://Private/Concourse/username)") \
 		| kbld -f - > concourse.yaml
 
-deploy: concourse.yaml
+deploy: concourse.yaml namespace.yaml service-monitor.yaml
 	kapp deploy \
 		--app concourse \
 		--diff-changes \
-		--into-ns concourse \
+		--map-ns default=concourse \
+		--map-ns concourse=concourse \
+		--map-ns monitoring=monitoring \
 		--file namespace.yaml \
 		--file <(ytt --file secrets.yaml \
 			--data-value username="$(shell op read op://Private/Concourse/username)" \
 			--data-value password="$(shell op read op://Private/Concourse/password)") \
+		--file service-monitor.yaml \
 		--file concourse.yaml
