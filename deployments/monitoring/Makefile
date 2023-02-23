@@ -20,7 +20,7 @@ deploy: namespace.yaml grafana-agent-operator.yaml
 		--file namespace.yaml \
 		--file vendor/grafana-agent-operator/crds \
 		--file grafana-agent-operator.yaml \
-		--file <(ytt --data-value cluster.name=wallhouse --file grafana-agent.yaml) \
+		--file <(ytt --data-value cluster.name=wallhouse --file grafana-agent.yaml | kbld -f -) \
 		--file kube-state-metrics.yaml \
 		--file service-monitor-cadvisor.yaml \
 		--file service-monitor-kubelet.yaml \

@@ -6,6 +6,5 @@ directories:
   - path: grafana-agent-operator
     helmChart:
       name: grafana-agent-operator
-      version: 0.2.8
       repository:
         url: https://grafana.github.io/helm-charts
