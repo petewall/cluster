@@ -19,7 +19,7 @@ spec:
     port: prometheus
     relabelings:
     - action: replace
-      replacement: integrations/kubernetes/concourse
+      replacement: concourse
       targetLabel: job
   namespaceSelector:
     matchNames:
