@@ -21,4 +21,4 @@ spec:
     - opencost
   selector:
     matchLabels:
-      name: opencost
+      app: opencost

@@ -13,6 +13,7 @@ opencost.yaml: vendor/opencost/kubernetes/opencost.yaml set-envs-overlay.yaml se
 		--file vendor/opencost/kubernetes/opencost.yaml \
 		--file set-envs-overlay.yaml \
 		--file set-namespace-overlay.yaml \
+		--file set-service-label-overlay.yaml \
 		| kbld -f - > opencost.yaml
 
 deploy: opencost.yaml service-monitor.yaml secret.yaml
