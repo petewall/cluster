@@ -23,4 +23,4 @@ deploy: namespace.yaml ddclient-secret.yaml ddclient.yaml
 		--diff-changes \
 		-f namespace.yaml \
 		-f ddclient-secret.yaml \
-		-f ddclient.yaml
+		-f <(kbld -f ddclient.yaml)
