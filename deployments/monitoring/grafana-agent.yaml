@@ -70,7 +70,7 @@ metadata:
   name: grafana-agent
   namespace: monitoring
 spec:
-  image: grafana/agent:v0.31.3
+  image: grafana/agent:v0.32.0
   logLevel: debug
   integrations:
     selector:

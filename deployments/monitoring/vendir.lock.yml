@@ -2,8 +2,8 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - helmChart:
-      appVersion: 0.31.3
-      version: 0.2.12
+      appVersion: 0.32.0
+      version: 0.2.13
     path: grafana-agent-operator
   path: vendor
 kind: LockConfig
