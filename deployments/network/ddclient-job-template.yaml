@@ -6,7 +6,8 @@ metadata:
   name: #@ "ddclient-" + data.values.url
   namespace: network
 spec:
-  schedule: "0 * * * *"
+  schedule: "@hourly"
+  concurrencyPolicy: Replace
   jobTemplate:
     spec:
       template:
