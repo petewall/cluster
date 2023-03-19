@@ -1,0 +1,36 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: #@ "dynamic-dns-" + data.values.url
+  namespace: network
+spec:
+  schedule: "@hourly"
+  concurrencyPolicy: Replace
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: dynamic-dns
+            image: curlimages/curl
+            imagePullPolicy: IfNotPresent
+            args:
+            - -X
+            - POST
+            - -u
+            - $(USERNAME):$(PASSWORD)
+            - #@ "https://domains.google.com/nic/update?hostname=" + data.values.url
+            env:
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: #@ "dynamic-dns-" + data.values.url
+                  key: username
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: #@ "dynamic-dns-" + data.values.url
+                  key: password
+          restartPolicy: OnFailure
