@@ -10,10 +10,6 @@ This deploys systems that are used to assist and augment the networking of the c
 
 ![Ddclient architecture](images/architecture.png)
 
-### Pi-hole
-
-[Pi-hole](https://pi-hole.net/) is a DNS server that focuses on ad blocking.
-
 ## Installing
 
 ```bash
