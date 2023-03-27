@@ -24,6 +24,11 @@ deploy: namespace.yaml grafana-agent-operator.yaml
 		--file kube-state-metrics.yaml \
 		--file service-monitor-cadvisor.yaml \
 		--file service-monitor-kubelet.yaml \
+			--file <(ytt --file opencost.yaml \
+			--data-value url="$(shell op read "op://Lab/Opencost Metrics Viewer Key/hostname")" \
+			--data-value username="$(shell op read "op://Lab/Opencost Metrics Viewer Key/username")" \
+			--data-value password="$(shell op read "op://Lab/Opencost Metrics Viewer Key/credential")" \
+		) \
 		--file <(ytt --file secrets.yaml \
 			--data-value metrics.username="$(shell op read "op://Lab/Grafana Cloud Metrics/username")" \
 			--data-value metrics.password="$(shell op read "op://Lab/Grafana Cloud Metrics/password")" \

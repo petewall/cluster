@@ -1,0 +1,158 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:regexp", "regexp")
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: opencost-prometheus
+  namespace: opencost
+type: Opaque
+stringData:
+  url: #@ regexp.replace("api/prom/push", data.values.url, "api/prom")
+  username: #@ data.values.username
+  password: #@ data.values.password
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: opencost
+  namespace: monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: opencost
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: opencost
+subjects:
+- kind: ServiceAccount
+  name: opencost
+  namespace: monitoring
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: opencost
+  name: opencost
+  namespace: monitoring
+spec:
+  ports:
+  - name: opencost-http-metrics
+    port: 9003
+    targetPort: 9003
+  - name: opencost-ui-http
+    port: 9090
+    targetPort: 9090
+  selector:
+    name: opencost
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opencost
+  namespace: monitoring
+spec:
+  minReadySeconds: 10
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: opencost
+  template:
+    metadata:
+      labels:
+        name: opencost
+    spec:
+      containers:
+      - env:
+        - name: EMIT_KSM_V1_METRICS
+          value: "false"
+        - name: EMIT_KSM_V1_METRICS_ONLY
+          value: "true"
+        - name: CLUSTER_ID
+          value: wallhouse
+        - name: PROM_CLUSTER_ID_LABEL
+          value: cluster
+        - name: KUBECOST_NAMESPACE
+          value: monitoring
+        - name: PROMETHEUS_SERVER_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              key: url
+              name: opencost-prometheus
+        - name: DB_BASIC_AUTH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: opencost-prometheus
+        - name: DB_BASIC_AUTH_PW
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: opencost-prometheus
+        image: quay.io/kubecost1/kubecost-cost-model:latest
+        imagePullPolicy: IfNotPresent
+        name: opencost
+        ports:
+        - containerPort: 9003
+          name: http-metrics
+        resources:
+          limits:
+            cpu: "4"
+            memory: 8Gi
+          requests:
+            cpu: "1"
+            memory: 4Gi
+      - image: quay.io/kubecost1/opencost-ui:latest
+        imagePullPolicy: IfNotPresent
+        name: opencost-ui
+        ports:
+        - containerPort: 9090
+          name: http
+        resources:
+          limits:
+            cpu: 999m
+            memory: 1Gi
+          requests:
+            cpu: 10m
+            memory: 55M
+      serviceAccountName: opencost
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    instance: primary
+  name: opencost
+  namespace: monitoring
+spec:
+  endpoints:
+  - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    honorLabels: true
+    interval: 60s
+    metricRelabelings:
+    - action: keep
+      regex: node_cpu_hourly_cost|node_gpu_hourly_cost|node_ram_hourly_cost|node_total_hourly_cost|opencost_load_balancer_cost|opencost_cluster_management_cost|pv_hourly_cost|node_gpu_count|container_cpu_allocation|container_gpu_allocation|container_memory_allocation_bytes|pod_pvc_allocation
+      sourceLabels:
+      - __name__
+    path: /metrics
+    port: https-metrics
+    relabelings:
+    - sourceLabels:
+      - __metrics_path__
+      targetLabel: metrics_path
+    - action: replace
+      replacement: integrations/kubernetes/opencost
+      targetLabel: job
+    scheme: https
+    tlsConfig:
+      insecureSkipVerify: true
+  namespaceSelector:
+    matchNames:
+    - monitoring
+  selector:
+    matchLabels:
+      name: opencost

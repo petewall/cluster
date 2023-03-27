@@ -1,7 +1,0 @@
-#@ load("@ytt:overlay", "overlay")
-#@overlay/match by=overlay.subset({"kind":"Service","metadata":{"name":"opencost"}})
----
-metadata:
-  #@overlay/match missing_ok=True
-  labels:
-    app: opencost
