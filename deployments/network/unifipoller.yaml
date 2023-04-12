@@ -60,8 +60,33 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 8080
+  - name: prometheus
+    port: 8080
     targetPort: 8080
     protocol: TCP
   selector:
     app: unifipoller
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: unifipoller
+  namespace: network
+  labels:
+    instance: primary
+spec:
+  endpoints:
+  - honorLabels: true
+    interval: 60s
+    path: /metrics
+    port: prometheus
+    relabelings:
+    - action: replace
+      replacement: unifipoller
+      targetLabel: job
+  namespaceSelector:
+    matchNames:
+    - network
+  selector:
+    matchLabels:
+      app: unifipoller
