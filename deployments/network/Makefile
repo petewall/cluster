@@ -22,10 +22,14 @@ dynamic-dns-jobs.yaml: dynamic-dns-job-template.yaml
 	echo "---" >> dynamic-dns-jobs.yaml
 	ytt --file dynamic-dns-job-template.yaml --data-value url="ci.petewall.net" >> dynamic-dns-jobs.yaml
 
-deploy: namespace.yaml dynamic-dns-jobs.yaml dynamic-dns-secrets.yaml
+deploy: namespace.yaml dynamic-dns-jobs.yaml dynamic-dns-secrets.yaml unifipoller.yaml
 	kapp deploy -a network \
 		--into-ns network \
 		--diff-changes \
 		-f namespace.yaml \
 		-f dynamic-dns-secrets.yaml \
-		-f <(kbld -f dynamic-dns-jobs.yaml)
+		-f <(kbld -f dynamic-dns-jobs.yaml) \
+		-f <(ytt -f unifipoller.yaml \
+			--data-value-file username=<(op read "op://Lab/unifipoller/username") \
+			--data-value-file password=<(op read "op://Lab/unifipoller/password") \
+			| kbld -f-)
