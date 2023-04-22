@@ -11,7 +11,7 @@ grafana-agent-operator.yaml: vendor/grafana-agent-operator/Chart.yaml
 		--skip-tests \
 		| kbld -f - > grafana-agent-operator.yaml
 
-deploy: namespace.yaml grafana-agent-operator.yaml
+deploy: namespace.yaml grafana-agent-operator.yaml opencost.yaml secrets.yaml storage-snmp-monitor.yaml
 	kapp deploy \
 		--app monitoring \
 		--diff-changes \
@@ -34,4 +34,11 @@ deploy: namespace.yaml grafana-agent-operator.yaml
 			--data-value metrics.password="$(shell op read "op://Lab/Grafana Cloud Metrics/password")" \
 			--data-value logs.username="$(shell op read "op://Lab/Grafana Cloud Logs/username")" \
 			--data-value logs.password="$(shell op read "op://Lab/Grafana Cloud Logs/password")" \
+		) \
+		--file <(ytt --file storage-snmp-monitor.yaml \
+			--data-value storage_snmp.username="$(shell op read "op://Lab/Storage SNMP/username")" \
+			--data-value storage_snmp.password="$(shell op read "op://Lab/Storage SNMP/password")" \
+			--data-value storage_snmp.protocol="$(shell op read "op://Lab/Storage SNMP/protocol")" \
+			--data-value storage_snmp.priv_protocol="$(shell op read "op://Lab/Storage SNMP/privacy/protocol")" \
+			--data-value storage_snmp.priv_password="$(shell op read "op://Lab/Storage SNMP/privacy/password")" \
 		)
