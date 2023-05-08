@@ -3,8 +3,18 @@ kind: Config
 directories:
 - path: vendor
   contents:
-  - path: grafana-agent-operator
+  - path: grafana-agent
     helmChart:
-      name: grafana-agent-operator
+      name: grafana-agent
       repository:
         url: https://grafana.github.io/helm-charts
+  - path: node-exporter
+    helmChart:
+      name: prometheus-node-exporter
+      repository:
+        url: https://prometheus-community.github.io/helm-charts
+  - path: kube-state-metrics
+    helmChart:
+      name: kube-state-metrics
+      repository:
+        url: https://prometheus-community.github.io/helm-charts

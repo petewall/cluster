@@ -1,2 +1,4 @@
 vendor/*
-grafana-agent-operator.yaml
+grafana-agent.yaml
+kube-state-metrics.yaml
+node-exporter.yaml

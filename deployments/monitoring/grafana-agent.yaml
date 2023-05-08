@@ -1,59 +1,101 @@
-#@ load("@ytt:data", "data")
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  labels:
+    app.kubernetes.io/instance: grafana-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana-agent
+    app.kubernetes.io/version: v0.33.1
+    helm.sh/chart: grafana-agent-0.13.0
   name: grafana-agent
-  namespace: monitoring
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: agent-eventhandler
-  namespace: monitoring
-spec:
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  labels:
+    app.kubernetes.io/instance: grafana-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana-agent
+    app.kubernetes.io/version: v0.33.1
+    helm.sh/chart: grafana-agent-0.13.0
   name: grafana-agent
 rules:
 - apiGroups:
   - ""
+  - discovery.k8s.io
+  - networking.k8s.io
   resources:
+  - endpoints
+  - endpointslices
+  - ingresses
   - nodes
   - nodes/proxy
   - nodes/metrics
-  - services
-  - endpoints
   - pods
-  - events
+  - services
   verbs:
   - get
   - list
   - watch
 - apiGroups:
-  - networking.k8s.io
+  - ""
   resources:
-  - ingresses
+  - pods
+  - pods/log
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - monitoring.grafana.com
+  resources:
+  - podlogs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - prometheusrules
   verbs:
   - get
   - list
   - watch
 - nonResourceURLs:
   - /metrics
-  - /metrics/cadvisor
   verbs:
   - get
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - podmonitors
+  - servicemonitors
+  - probes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - get
+  - list
+  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
+  labels:
+    app.kubernetes.io/instance: grafana-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana-agent
+    app.kubernetes.io/version: v0.33.1
+    helm.sh/chart: grafana-agent-0.13.0
   name: grafana-agent
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -64,172 +106,119 @@ subjects:
   name: grafana-agent
   namespace: monitoring
 ---
-apiVersion: monitoring.grafana.com/v1alpha1
-kind: GrafanaAgent
+apiVersion: v1
+kind: Service
 metadata:
+  labels:
+    app.kubernetes.io/instance: grafana-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana-agent
+    app.kubernetes.io/version: v0.33.1
+    helm.sh/chart: grafana-agent-0.13.0
   name: grafana-agent
-  namespace: monitoring
 spec:
-  image: grafana/agent:v0.32.1
-  logLevel: debug
-  integrations:
-    selector:
-      matchLabels:
-        agent: grafana-agent
-  logs:
-    instanceSelector:
-      matchLabels:
-        agent: grafana-agent
-  metrics:
-    externalLabels:
-      cluster: #@ data.values.cluster.name
-    instanceSelector:
-      matchLabels:
-        agent: grafana-agent
-    scrapeInterval: 60s
-  serviceAccountName: grafana-agent
----
-apiVersion: monitoring.grafana.com/v1alpha1
-kind: Integration
-metadata:
-  labels:
-    agent: grafana-agent
-  name: agent-eventhandler
-  namespace: monitoring
-spec:
-  config:
-    cache_path: /etc/eventhandler/eventhandler.cache
-    logs_instance: monitoring/grafana-agent-logs
-  name: eventhandler
-  type:
-    unique: true
-  volumeMounts:
-  - mountPath: /etc/eventhandler
-    name: agent-eventhandler
-  volumes:
-  - name: agent-eventhandler
-    persistentVolumeClaim:
-      claimName: agent-eventhandler
----
-apiVersion: monitoring.grafana.com/v1alpha1
-kind: Integration
-metadata:
-  labels:
-    agent: grafana-agent
-  name: node-exporter
-  namespace: monitoring
-spec:
-  config:
-    autoscrape:
-      enable: true
-      metrics_instance: monitoring/grafana-agent-metrics
-    procfs_path: host/proc
-    rootfs_path: /host/root
-    sysfs_path: /host/sys
-  name: node_exporter
-  type:
-    allNodes: true
-    unique: true
-  volumeMounts:
-  - mountPath: /host/root
-    name: rootfs
-  - mountPath: /host/sys
-    name: sysfs
-  - mountPath: /host/proc
-    name: procfs
-  volumes:
-  - hostPath:
-      path: /
-    name: rootfs
-  - hostPath:
-      path: /sys
-    name: sysfs
-  - hostPath:
-      path: /proc
-    name: procfs
----
-apiVersion: monitoring.grafana.com/v1alpha1
-kind: LogsInstance
-metadata:
-  labels:
-    agent: grafana-agent
-  name: grafana-agent-logs
-  namespace: monitoring
-spec:
-  clients:
-  - basicAuth:
-      password:
-        key: password
-        name: logs-secret
-      username:
-        key: username
-        name: logs-secret
-    externalLabels:
-      cluster: #@ data.values.cluster.name
-    url: https://logs-prod3.grafana.net/loki/api/v1/push
-  podLogsNamespaceSelector: {}
-  podLogsSelector:
-    matchLabels:
-      instance: primary
----
-apiVersion: monitoring.grafana.com/v1alpha1
-kind: MetricsInstance
-metadata:
-  labels:
-    agent: grafana-agent
-  name: grafana-agent-metrics
-  namespace: monitoring
-spec:
-  remoteWrite:
-  - basicAuth:
-      password:
-        key: password
-        name: metrics-secret
-      username:
-        key: username
-        name: metrics-secret
-    url: https://prometheus-prod-10-prod-us-central-0.grafana.net/api/prom/push
-  serviceMonitorNamespaceSelector: {}
-  serviceMonitorSelector:
-    matchLabels:
-      instance: primary
-  additionalScrapeConfigs:
-    name: device-scrape-job
-    key: jobs.yaml
----
-apiVersion: monitoring.grafana.com/v1alpha1
-kind: PodLogs
-metadata:
-  labels:
-    instance: primary
-  name: kubernetes-logs
-  namespace: monitoring
-spec:
-  namespaceSelector:
-    any: true
-  pipelineStages:
-  - cri: {}
-  relabelings:
-  - sourceLabels:
-    - __meta_kubernetes_pod_node_name
-    targetLabel: __host__
-  - action: replace
-    sourceLabels:
-    - __meta_kubernetes_namespace
-    targetLabel: namespace
-  - action: replace
-    sourceLabels:
-    - __meta_kubernetes_pod_name
-    targetLabel: pod
-  - action: replace
-    sourceLabels:
-    - __meta_kubernetes_container_name
-    targetLabel: container
-  - replacement: /var/log/pods/*$1/*.log
-    separator: /
-    sourceLabels:
-    - __meta_kubernetes_pod_uid
-    - __meta_kubernetes_pod_container_name
-    targetLabel: __path__
+  ports:
+  - name: http-metrics
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  - name: faro
+    port: 12347
+    protocol: TCP
+    targetPort: 12347
   selector:
-    matchLabels: {}
+    app.kubernetes.io/instance: grafana-agent
+    app.kubernetes.io/name: grafana-agent
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kbld.k14s.io/images: |
+      - origins:
+        - resolved:
+            tag: v0.33.1
+            url: grafana/agent:v0.33.1
+        url: index.docker.io/grafana/agent@sha256:ed5bfc0dfbd44ade9eb2507577b2394e29cf3883d30ac6c172e1853355b162fc
+      - origins:
+        - resolved:
+            tag: v0.8.0
+            url: jimmidyson/configmap-reload:v0.8.0
+        url: index.docker.io/jimmidyson/configmap-reload@sha256:5af9d3041d12a3e63f115125f89b66d2ba981fe82e64302ac370c5496055059c
+  labels:
+    app.kubernetes.io/instance: grafana-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: grafana-agent
+    app.kubernetes.io/version: v0.33.1
+    helm.sh/chart: grafana-agent-0.13.0
+  name: grafana-agent
+spec:
+  minReadySeconds: 10
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: grafana-agent
+      app.kubernetes.io/name: grafana-agent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: grafana-agent
+        app.kubernetes.io/name: grafana-agent
+    spec:
+      containers:
+      - args:
+        - run
+        - /etc/agent/agent.river
+        - --storage.path=/tmp/agent
+        - --server.http.listen-addr=0.0.0.0:80
+        env:
+        - name: AGENT_MODE
+          value: flow
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        image: index.docker.io/grafana/agent@sha256:ed5bfc0dfbd44ade9eb2507577b2394e29cf3883d30ac6c172e1853355b162fc
+        imagePullPolicy: IfNotPresent
+        name: grafana-agent
+        ports:
+        - containerPort: 80
+          name: http-metrics
+        - containerPort: 12347
+          name: faro
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 80
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+        volumeMounts:
+        - mountPath: /etc/agent
+          name: config
+        - mountPath: /etc/metrics-secret
+          name: metrics-secret
+          readOnly: true
+        - mountPath: /etc/logs-secret
+          name: logs-secret
+          readOnly: true
+      - args:
+        - --volume-dir=/etc/agent
+        - --webhook-url=http://localhost:80/-/reload
+        image: index.docker.io/jimmidyson/configmap-reload@sha256:5af9d3041d12a3e63f115125f89b66d2ba981fe82e64302ac370c5496055059c
+        name: config-reloader
+        volumeMounts:
+        - mountPath: /etc/agent
+          name: config
+      dnsPolicy: ClusterFirst
+      serviceAccount: grafana-agent
+      volumes:
+      - configMap:
+          name: grafana-agent-config
+        name: config
+      - name: metrics-secret
+        secret:
+          secretName: metrics-secret
+      - name: logs-secret
+        secret:
+          secretName: logs-secret

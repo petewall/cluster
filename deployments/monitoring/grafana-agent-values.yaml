@@ -1,0 +1,24 @@
+---
+agent:
+  configMap:
+    create: false
+    name: grafana-agent-config
+    key: agent.river
+  mounts:
+    extra:
+    - name: metrics-secret
+      readOnly: true
+      mountPath: /etc/metrics-secret
+    - name: logs-secret
+      readOnly: true
+      mountPath: /etc/logs-secret
+controller:
+  type: deployment
+  volumes:
+    extra:
+    - name: metrics-secret
+      secret:
+        secretName: metrics-secret
+    - name: logs-secret
+      secret:
+        secretName: logs-secret
