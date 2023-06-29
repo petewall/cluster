@@ -1,0 +1,24 @@
+#@ load("@ytt:data", "data")
+---
+cluster:
+  name: wallhouse
+
+externalServices:
+  prometheus:
+    host: #@ data.values.metrics.host
+    username: #@ data.values.metrics.username
+    password: #@ data.values.metrics.password
+
+  loki:
+    host: #@ data.values.logs.host
+    password: #@ data.values.logs.password
+    username: #@ data.values.logs.username
+
+extraConfig:  #@ data.values.extraConfig
+
+metrics:
+  cost:
+    enabled: false
+
+opencost:
+  enabled: false

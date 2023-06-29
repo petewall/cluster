@@ -1,9 +1,0 @@
-#@ load("grafana-agent-config.river.lib.txt", "agentConfig")
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: grafana-agent-config
-  namespace: monitoring
-data:
-  agent.river: #@ agentConfig()

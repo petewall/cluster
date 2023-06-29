@@ -1,4 +1,2 @@
 vendor/*
-grafana-agent.yaml
-kube-state-metrics.yaml
-node-exporter.yaml
+kubernetes-monitoring.yaml

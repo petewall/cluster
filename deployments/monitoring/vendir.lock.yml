@@ -1,17 +1,9 @@
 apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
-  - helmChart:
-      appVersion: v0.33.1
-      version: 0.13.0
-    path: grafana-agent
-  - helmChart:
-      appVersion: 1.5.0
-      version: 4.17.1
-    path: node-exporter
-  - helmChart:
-      appVersion: 2.8.2
-      version: 5.6.1
-    path: kube-state-metrics
+  - git:
+      commitTitle: Remove extra prometheus.relabel when it can be done in the discovery.relabel...
+      sha: 8f6c1643833ad508986d81ea0b9ec859ab21f17a
+    path: kubernetes-monitoring
   path: vendor
 kind: LockConfig

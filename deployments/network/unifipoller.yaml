@@ -66,32 +66,3 @@ spec:
     protocol: TCP
   selector:
     app: unifipoller
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: unifipoller
-  namespace: network
-  labels:
-    instance: primary
-spec:
-  endpoints:
-  - honorLabels: true
-    interval: 60s
-    path: /metrics
-    port: prometheus
-    metricRelabelings:
-    - action: keep
-      regex: unpoller_site_(.+)
-      sourceLabels:
-      - __name__
-    relabelings:
-    - action: replace
-      replacement: unifipoller
-      targetLabel: job
-  namespaceSelector:
-    matchNames:
-    - network
-  selector:
-    matchLabels:
-      app: unifipoller
