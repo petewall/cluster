@@ -2,11 +2,11 @@ SHELL := /bin/bash
 
 .PHONY: deploy
 
-vendor/kubernetes-monitoring/charts/kubernetes-monitoring/Chart.yaml: vendir.yml vendir.lock.yml
+vendor/kubernetes-monitoring/Chart.yaml: vendir.yml vendir.lock.yml
 	vendir sync --locked
 
-kubernetes-monitoring.yaml: vendor/kubernetes-monitoring/charts/kubernetes-monitoring/Chart.yaml values.yaml concourse.river unifipoller.river
-	helm template kubernetes-monitoring vendor/kubernetes-monitoring/charts/kubernetes-monitoring \
+kubernetes-monitoring.yaml: vendor/kubernetes-monitoring/Chart.yaml values.yaml concourse.river unifipoller.river
+	helm template kubernetes-monitoring vendor/kubernetes-monitoring \
 		--namespace monitoring \
 		--values <(ytt --file values.yaml \
 			--data-value metrics.host="$(shell op read "op://Lab/Grafana Cloud Metrics/website")" \

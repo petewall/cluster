@@ -4,12 +4,7 @@ directories:
 - path: vendor
   contents:
   - path: kubernetes-monitoring
-    # helmChart:
-    #   name: kubernetes-monitoring
-    #   repository:
-    #     url: https://github.com/grafana/kubernetes-monitoring-chart
-    git:
-      url: https://github.com/grafana/kubernetes-monitoring-chart
-      ref: origin/main
-    includePaths:
-      - charts/kubernetes-monitoring/**
+    helmChart:
+      name: k8s-monitoring
+      repository:
+        url: https://grafana.github.io/helm-charts

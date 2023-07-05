@@ -1,9 +1,9 @@
 apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
-  - git:
-      commitTitle: Remove extra prometheus.relabel when it can be done in the discovery.relabel...
-      sha: 8f6c1643833ad508986d81ea0b9ec859ab21f17a
+  - helmChart:
+      appVersion: 1.1.5
+      version: 0.0.3
     path: kubernetes-monitoring
   path: vendor
 kind: LockConfig

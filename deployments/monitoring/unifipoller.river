@@ -15,5 +15,5 @@ discovery.relabel "unifipoller" {
 prometheus.scrape "unifipoller" {
   job_name   = "unifipoller"
   targets    = discovery.relabel.unifipoller.output
-  forward_to = [prometheus.relabel.add_cluster_label.receiver]
+  forward_to = [prometheus.remote_write.grafana_cloud_prometheus.receiver]
 }
