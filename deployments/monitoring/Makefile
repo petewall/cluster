@@ -5,8 +5,17 @@ SHELL := /bin/bash
 vendor/k8s-monitoring/Chart.yaml: vendir.yml vendir.lock.yml
 	vendir sync --locked
 
-kubernetes-monitoring.yaml: vendor/k8s-monitoring/Chart.yaml values.yaml unifipoller.river
-	helm template kubernetes-monitoring vendor/k8s-monitoring \
+rendered-values.yaml:
+	ytt --file values.yaml \
+		--data-value metrics.host="$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics/website")" \
+		--data-value metrics.username="$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics/username")" \
+		--data-value metrics.password="$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics/password")" \
+		--data-value logs.host="$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Logs/website")" \
+		--data-value logs.username="$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Logs/username")" \
+		--data-value logs.password="$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Logs/password")" > rendered-values.yaml
+
+kubernetes-monitoring.yaml: vendor/k8s-monitoring/Chart.yaml values.yaml
+	helm template k8s-monitoring vendor/k8s-monitoring \
 		--namespace monitoring \
 		--values <(ytt --file values.yaml \
 			--data-value metrics.host="$(shell op read "op://Lab/Grafana Cloud Metrics/website")" \
@@ -15,7 +24,6 @@ kubernetes-monitoring.yaml: vendor/k8s-monitoring/Chart.yaml values.yaml unifipo
 			--data-value logs.host="$(shell op read "op://Lab/Grafana Cloud Logs/website")" \
 			--data-value logs.username="$(shell op read "op://Lab/Grafana Cloud Logs/username")" \
 			--data-value logs.password="$(shell op read "op://Lab/Grafana Cloud Logs/password")" \
-			--data-value-file extraConfig=<(cat unifipoller.river) \
 		) \
 		| kbld -f - > kubernetes-monitoring.yaml
 
