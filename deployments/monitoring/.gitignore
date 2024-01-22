@@ -1,2 +1,3 @@
 vendor/*
 kubernetes-monitoring.yaml
+rendered-values.yaml
