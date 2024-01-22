@@ -8,5 +8,7 @@ deploy: ghost.yaml
 		--diff-changes \
 		--into-ns ghost \
 		--file <(kbld -f ghost.yaml) \
-		--file <(kbld -f ghost-db.yaml) \
+		--file <(ytt --file ghost-db.yaml \
+			--data-value-file ghostdb.password=<(op read "op://Lab/Ghost DB Root Password/password") \
+		| kbld -f -) \
 		--diff-changes

@@ -3,7 +3,7 @@ directories:
 - contents:
   - helmChart:
       appVersion: 1.3.2
-      version: 0.2.6
+      version: 0.2.8
     path: k8s-monitoring
   path: vendor
 kind: LockConfig

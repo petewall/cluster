@@ -1,11 +1,13 @@
+#@ load("@ytt:base64", "base64")
+#@ load("@ytt:data", "data")
 ---
-apiVersion: secretgen.k14s.io/v1alpha1
-kind: Password
+apiVersion: v1
+kind: Secret
 metadata:
   name: ghost-db
   namespace: ghost
-spec:
-  length: 64
+data:
+  password: #@ base64.encode(data.values.ghostdb.password.strip())
 ---
 apiVersion: apps/v1
 kind: StatefulSet

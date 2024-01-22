@@ -3,7 +3,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: #@ "dynamic-dns-" + data.values.url
+  name: #@ "dynamic-dns-" + data.values.domain
   namespace: network
 spec:
   schedule: "@hourly"
@@ -14,23 +14,17 @@ spec:
         spec:
           containers:
           - name: dynamic-dns
-            image: curlimages/curl
-            imagePullPolicy: IfNotPresent
-            args:
-            - -X
-            - POST
-            - -u
-            - $(USERNAME):$(PASSWORD)
-            - #@ "https://domains.google.com/nic/update?hostname=" + data.values.url
+            image: nixery.dev/shell/curl/jq
+            command:
+            - sh
+            - -c
+            - #@ data.values.script
             env:
-            - name: USERNAME
+            - name: DOMAIN
+              value: #@ data.values.domain
+            - name: TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: #@ "dynamic-dns-" + data.values.url
-                  key: username
-            - name: PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: #@ "dynamic-dns-" + data.values.url
-                  key: password
-          restartPolicy: OnFailure
+                  name: cloudflare
+                  key: token
+          restartPolicy: Never
