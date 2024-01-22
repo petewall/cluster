@@ -57,6 +57,9 @@ metadata:
     app: unifipoller
   name: unifipoller
   namespace: network
+  annotations:
+    k8s.grafana.com/scrape: "true"
+    k8s.grafana.com/job: unifipoller
 spec:
   type: ClusterIP
   ports:
