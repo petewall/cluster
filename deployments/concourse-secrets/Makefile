@@ -7,6 +7,7 @@ deploy: secrets.yaml
 		--app concourse-secrets \
 		--diff-changes \
 		--into-ns concourse-main \
+		--file namespace.yaml \
 		--file <(ytt --file secrets.yaml \
 			--data-value-file dockerhub.username=<(op read "op://Private/Docker Hub/username") \
 			--data-value-file dockerhub.password=<(op read "op://Private/Docker Hub/personal access token") \
