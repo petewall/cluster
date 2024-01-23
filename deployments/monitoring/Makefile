@@ -14,7 +14,7 @@ rendered-values.yaml:
 		--data-value logs.username="$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Logs/username")" \
 		--data-value logs.password="$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Logs/password")" > rendered-values.yaml
 
-kubernetes-monitoring.yaml: vendor/k8s-monitoring/Chart.yaml values.yaml
+kubernetes-monitoring.yaml: vendor/k8s-monitoring/Chart.yaml values.yaml extraConfig.river
 	helm template k8s-monitoring vendor/k8s-monitoring \
 		--namespace monitoring \
 		--values <(ytt --file values.yaml \
@@ -25,6 +25,8 @@ kubernetes-monitoring.yaml: vendor/k8s-monitoring/Chart.yaml values.yaml
 			--data-value logs.username="$(shell op read "op://Lab/Grafana Cloud Logs/username")" \
 			--data-value logs.password="$(shell op read "op://Lab/Grafana Cloud Logs/password")" \
 		) \
+		--set-file extraConfig=extraConfig.river \
+		| ytt -f remove-tests-and-hooks-overlay.yaml -f - \
 		| kbld -f - > kubernetes-monitoring.yaml
 
 deploy: namespace.yaml kubernetes-monitoring.yaml
