@@ -6,8 +6,9 @@ metadata:
   name: #@ "dynamic-dns-" + data.values.domain
   namespace: network
 spec:
-  schedule: "@hourly"
   concurrencyPolicy: Replace
+  schedule: "@hourly"
+  successfulJobsHistoryLimit: 1
   jobTemplate:
     spec:
       template:
