@@ -32,6 +32,10 @@ worker:
   enabled: true
   replicas: 2
 
+persistence:
+  worker:
+    storageClass: synology-nfs
+
 postgresql:
   enabled: true
   auth:
@@ -39,6 +43,9 @@ postgresql:
     username: #@ data.values.pgusername
     password: #@ data.values.pgpassword
     postgresPassword: #@ data.values.pgpassword
+  primary:
+    persistence:
+      storageClass: synology-nfs
 
 secrets:
   create: false
