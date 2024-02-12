@@ -2,8 +2,8 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - helmChart:
-      appVersion: 1.6.1
-      version: 0.8.6
+      appVersion: 2.0.0
+      version: 0.10.1
     path: k8s-monitoring
   path: vendor
 kind: LockConfig
