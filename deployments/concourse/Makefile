@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: clean deploy
+.PHONY: clean deploy delete
 
 clean:
 	rm -rf chart concourse.yaml
@@ -15,8 +15,7 @@ concourse.yaml: chart/Chart.yaml values.yaml
 			--data-value pgusername="$(shell op read "op://Lab/Concourse PostgreSQL/username")" \
 			--data-value pgpassword="$(shell op read "op://Lab/Concourse PostgreSQL/password")" \
 			--data-value username="$(shell op read op://Private/Concourse/username)") \
-		| kbld -f - \
-		| ytt -f prometheus-to-grafana-annotation-overlay.yaml -f - > concourse.yaml
+		| kbld -f - > concourse.yaml
 
 deploy: concourse.yaml namespace.yaml
 	kapp deploy \
@@ -30,3 +29,6 @@ deploy: concourse.yaml namespace.yaml
 			--data-value username="$(shell op read op://Private/Concourse/username)" \
 			--data-value password="$(shell op read op://Private/Concourse/password)") \
 		--file concourse.yaml
+
+delete:
+	kapp delete --app concourse

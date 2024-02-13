@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: deploy
+.PHONY: deploy delete
 
 vendor/k8s-monitoring/Chart.yaml: vendir.yml vendir.lock.yml
 	vendir sync --locked
@@ -36,3 +36,6 @@ deploy: namespace.yaml kubernetes-monitoring.yaml
 		--into-ns monitoring \
 		--file namespace.yaml \
 		--file kubernetes-monitoring.yaml
+
+delete:
+	kapp delete --app monitoring

@@ -8,11 +8,16 @@ concourse:
     externalUrl: https://ci.petewall.net
     kubernetes:
       createTeamNamespaces: false
+    tracing:
+      otlpAddress: k8s-monitoring-grafana-agent.monitoring.svc:4317
     prometheus:
       enabled: true
   worker:
-    #! Need to use containerd to avoid these issues: mounting "cgroup" to rootfs at "/sys/fs/cgroup" caused: invalid argument
-    runtime: containerd
+    baggageclaim:
+      #! Needed to prevent issues with: failed to create volume
+      driver: btrfs
+    tracing:
+      otlpAddress: k8s-monitoring-grafana-agent.monitoring.svc:4317
 
 web:
   enabled: true
@@ -27,6 +32,12 @@ web:
     - hosts:
       - ci.petewall.net
       secretName: concourse-web-tls
+  service:
+    prometheus:
+      annotations:
+        k8s.grafana.com/scrape: "true"
+        k8s.grafana.com/job: "integrations/concourse"
+        k8s.grafana.com/port: "9391"
 
 worker:
   enabled: true
