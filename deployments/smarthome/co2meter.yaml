@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: co2meter-exporter
+  namespace: smarthome
+  labels:
+    app: co2meter-exporter
+spec:
+  selector:
+    matchLabels:
+      app: co2meter-exporter
+  template:
+    metadata:
+      labels:
+        app: co2meter-exporter
+      annotations:
+        k8s.grafana.com/scrape: "true"
+        k8s.grafana.com/job: "co2meter"
+    spec:
+      containers:
+      - name: co2meter-exporter
+        image: ghcr.io/petewall/co2meter-exporter
+        ports:
+        - containerPort: 9800
+        env:
+        - name: BYPASS_DECRYPT
+          value: "True"
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: usb-devices
+          mountPath: /dev/bus/usb
+          readOnly: false
+      volumes:
+      - name: usb-devices
+        hostPath:
+          path: /dev/bus/usb
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: hardware.co2meter
+                operator: Exists
