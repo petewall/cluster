@@ -8,3 +8,8 @@ directories:
       name: k8s-monitoring
       repository:
         url: https://grafana.github.io/helm-charts
+  - path: kepler
+    helmChart:
+      name: kepler
+      repository:
+        url: https://sustainable-computing-io.github.io/kepler-helm-chart

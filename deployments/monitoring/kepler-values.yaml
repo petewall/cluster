@@ -1,0 +1,7 @@
+podAnnotations:
+  k8s.grafana.com/scrape: "true"
+  k8s.grafana.com/job: "integrations/kepler"
+
+nodeSelector:
+  kubernetes.io/arch: amd64   # Skip deployment on the Raspberry Pi
+  kubernetes.io/os: linux

@@ -16,9 +16,26 @@ externalServices:
       password: #@ data.values.logs.password
       username: #@ data.values.logs.username
 
+  tempo:
+    host: #@ data.values.traces.host
+    basicAuth:
+      password: #@ data.values.traces.password
+      username: #@ data.values.traces.username
+
 metrics:
+  agent:
+    mtricsTuning:
+      useIntegrationAllowList: true
+
+  node-exporter:
+    mtricsTuning:
+      useIntegrationAllowList: true
+
   cost:
     enabled: false
+
+traces:
+  enabled: true
 
 opencost:
   enabled: false

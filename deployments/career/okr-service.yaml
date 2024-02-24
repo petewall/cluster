@@ -1,5 +1,36 @@
 ---
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: beyla
+  namespace: career
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: beyla
+rules:
+  - apiGroups: ["apps"]
+    resources: ["replicasets"]
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: beyla
+subjects:
+  - kind: ServiceAccount
+    name: beyla
+    namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: beyla
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: okr-service
@@ -10,6 +41,14 @@ data:
   DATASTORE_FORMAT: yaml
   DATASTORE_PATH: /data/okrs.yaml
   DEBUG: "true"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beyla-lockdown
+  namespace: career
+data:
+  lockdown: none [integrity] confidentiality
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -27,6 +66,8 @@ spec:
       labels:
         app: okr-service
     spec:
+      shareProcessNamespace: true
+      serviceAccountName: beyla
       securityContext:
         runAsUser: 1000
         runAsGroup: 3000
@@ -42,6 +83,34 @@ spec:
         volumeMounts:
         - name: okr-service-data
           mountPath: /data
+
+      - name: beyla
+        image: grafana/beyla:latest
+        securityContext:
+          privileged: true
+          runAsUser: 0
+        env:
+          - name: BEYLA_SERVICE_NAME
+            value: "okr-service"
+          - name: BEYLA_PRINT_TRACES
+            value: "true"
+          - name: BEYLA_OPEN_PORT
+            value: "8080"
+          - name: BEYLA_KUBE_METADATA_ENABLE
+            value: "true"
+          - name: BEYLA_LOG_LEVEL
+            value: "DEBUG"
+          - name: OTEL_EXPORTER_OTLP_ENDPOINT
+            value: "http://k8s-monitoring-grafana-agent.monitoring.svc:4318"
+        volumeMounts:
+        - name: beyla-lockdown
+          mountPath: /sys/kernel/security
+          readOnly: true
+      volumes:
+      - name: beyla-lockdown
+        configMap:
+          name: beyla-lockdown
+
   volumeClaimTemplates:
   - metadata:
       name: okr-service-data
