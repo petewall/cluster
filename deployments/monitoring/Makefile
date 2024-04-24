@@ -23,24 +23,15 @@ kubernetes-monitoring.yaml: vendor/k8s-monitoring/Chart.yaml values.yaml extraCo
 			--data-value traces.password="$(shell op read "op://Lab/Grafana Cloud Traces/password")" \
 		) \
 		--set-file extraConfig=extraConfig.river \
-		| ytt -f remove-tests-and-hooks-overlay.yaml -f - \
 		| kbld -f - > kubernetes-monitoring.yaml
 
-kepler.yaml: vendor/kepler/Chart.yaml kepler-values.yaml
-	helm template kepler vendor/kepler \
-		--namespace monitoring \
-		--values kepler-values.yaml \
-		> kepler.yaml
-
-deploy: kapp-config.yaml namespace.yaml kubernetes-monitoring.yaml kepler.yaml
+deploy: namespace.yaml kubernetes-monitoring.yaml
 	kapp deploy \
 		--app monitoring \
 		--diff-changes \
 		--into-ns monitoring \
-		--file kapp-config.yaml \
 		--file namespace.yaml \
-		--file kubernetes-monitoring.yaml \
-		--file kepler.yaml
+		--file kubernetes-monitoring.yaml
 
 delete:
 	kapp delete --app monitoring

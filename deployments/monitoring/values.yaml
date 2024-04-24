@@ -23,19 +23,65 @@ externalServices:
       username: #@ data.values.traces.username
 
 metrics:
-  agent:
-    mtricsTuning:
+  alloy:
+    metricsTuning:
       useIntegrationAllowList: true
 
+  kube-state-metrics:
+    extraMetricRelabelingRules: |
+      rule {
+        source_labels = ["__name__", "provider_id", "node"]
+        separator = "@"
+        regex = "kube_node_info@@(.*)"
+        replacement = "microk8s://${1}"
+        action = "replace"
+        target_label = "provider_id"
+      }
+
   node-exporter:
-    mtricsTuning:
+    metricsTuning:
       useIntegrationAllowList: true
 
   cost:
     enabled: false
 
+logs:
+  pod_logs:
+    extraRelabelingRules: |-
+      rule {
+        source_labels = ["__meta_kubernetes_pod_node_name"]
+        target_label = "node"
+        action = "replace"
+      }
+
 traces:
   enabled: true
 
+configAnalysis:
+  enabled: false
+
+configValidator:
+  enabled: false
+
+test:
+  enabled: false
+
 opencost:
   enabled: false
+
+prometheus-operator-crds:
+  enabled: false
+
+alloy-logs:
+  alloy:
+    mounts:
+      extra:
+        - name: storage
+          mountPath: /tmp/alloy
+  controller:
+    volumes:
+      extra:
+        - name: storage
+          hostPath:
+            path: /var/alloy-log-storage
+            type: DirectoryOrCreate
