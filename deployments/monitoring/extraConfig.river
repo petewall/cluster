@@ -23,3 +23,19 @@ prometheus.scrape "cert_manager" {
   honor_labels = true
   forward_to   = [prometheus.relabel.metrics_service.receiver]
 }
+
+// Kepler
+discovery.relabel "kepler" {
+  targets = discovery.kubernetes.pods.targets
+  rule {
+    source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+    regex = "kepler"
+    action = "keep"
+  }
+}
+
+prometheus.scrape "kepler" {
+  job_name     = "integrations/kepler"
+  targets      = discovery.relabel.kepler.output
+  forward_to   = [prometheus.relabel.metrics_service.receiver]
+}

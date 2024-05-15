@@ -42,8 +42,10 @@ metrics:
     metricsTuning:
       useIntegrationAllowList: true
 
-  cost:
-    enabled: false
+  cost: {enabled: false}
+  probes: {enabled: false}
+  podMonitors: {enabled: false}
+  serviceMonitors: {enabled: false}
 
 logs:
   pod_logs:
