@@ -12,6 +12,8 @@ dynamic-dns-jobs.yaml: dynamic-dns-job-template.yaml
 	ytt --file dynamic-dns-job-template.yaml --data-value domain="petewall.net" --data-value-file script=dynamic-dns-cloudflare.sh >> dynamic-dns-jobs.yaml
 	echo "---" >> dynamic-dns-jobs.yaml
 	ytt --file dynamic-dns-job-template.yaml --data-value domain="ci.petewall.net" --data-value-file script=dynamic-dns-cloudflare.sh >> dynamic-dns-jobs.yaml
+	echo "---" >> dynamic-dns-jobs.yaml
+	ytt --file dynamic-dns-job-template.yaml --data-value domain="home.petewall.net" --data-value-file script=dynamic-dns-cloudflare.sh >> dynamic-dns-jobs.yaml
 
 deploy: namespace.yaml dynamic-dns-jobs.yaml secrets.yaml unifipoller.yaml
 	kapp deploy -a network \
