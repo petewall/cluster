@@ -5,7 +5,7 @@ SHELL := /bin/bash
 vendor/k8s-monitoring/Chart.yaml: vendir.yml vendir.lock.yml
 	vendir sync --locked
 
-kubernetes-monitoring.yaml: vendor/k8s-monitoring/Chart.yaml values.yaml extraConfig.river
+kubernetes-monitoring.yaml: vendor/k8s-monitoring/Chart.yaml values.yaml extraConfig.alloy
 	helm template k8s-monitoring vendor/k8s-monitoring \
 		--namespace monitoring \
 		--values <(ytt --file values.yaml \
@@ -19,7 +19,7 @@ kubernetes-monitoring.yaml: vendor/k8s-monitoring/Chart.yaml values.yaml extraCo
 			--data-value traces.username="$(shell op read "op://Lab/Grafana Cloud Traces/username")" \
 			--data-value traces.password="$(shell op read "op://Lab/Grafana Cloud Traces/password")" \
 		) \
-		--set-file extraConfig=extraConfig.river \
+		--set-file extraConfig=extraConfig.alloy \
 		| kbld -f - > kubernetes-monitoring.yaml
 
 deploy: namespace.yaml kubernetes-monitoring.yaml
