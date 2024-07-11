@@ -5,12 +5,6 @@ SHELL := /bin/bash
 vendor/k8s-monitoring/Chart.yaml: vendir.yml vendir.lock.yml
 	vendir sync --locked
 
-vendor/kepler/Chart.yaml: vendir.yml vendir.lock.yml
-	vendir sync --locked
-
-kepler.yaml: vendor/kepler/Chart.yaml
-	helm template kepler vendor/kepler --namespace monitoring | kbld -f - > kepler.yaml
-
 kubernetes-monitoring.yaml: vendor/k8s-monitoring/Chart.yaml values.yaml extraConfig.river
 	helm template k8s-monitoring vendor/k8s-monitoring \
 		--namespace monitoring \
@@ -28,13 +22,12 @@ kubernetes-monitoring.yaml: vendor/k8s-monitoring/Chart.yaml values.yaml extraCo
 		--set-file extraConfig=extraConfig.river \
 		| kbld -f - > kubernetes-monitoring.yaml
 
-deploy: namespace.yaml kepler.yaml kubernetes-monitoring.yaml
+deploy: namespace.yaml kubernetes-monitoring.yaml
 	kapp deploy \
 		--app monitoring \
 		--diff-changes \
 		--into-ns monitoring \
 		--file namespace.yaml \
-		--file kepler.yaml \
 		--file kubernetes-monitoring.yaml
 
 delete:
