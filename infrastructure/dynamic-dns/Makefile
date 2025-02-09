@@ -1,5 +1,6 @@
 SHELL := /bin/bash
 
+.PHONY: all
 all: cloudflare-secret.yaml dynamic-dns-script.yaml
 
 cloudflare-secret.yaml:

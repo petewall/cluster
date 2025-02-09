@@ -1,0 +1,65 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  interval: 1h0m0s
+  url: https://grafana.github.io/helm-charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: k8s-monitoring
+  namespace: monitoring
+spec:
+  chart:
+    spec:
+      chart: k8s-monitoring
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+  interval: 1h0m0s
+  values:
+    cluster:
+      name: wallhouse
+    destinations:
+      - name: grafana-cloud-metrics
+        type: prometheus
+        urlFrom: nonsensitive(remote.kubernetes.secret.grafana_cloud_metrics.data["metricsUrl"])
+        auth:
+          type: basic
+          usernameKey: metricsUsername
+          passwordKey: metricsPassword
+        secret:
+          create: false
+          name: grafana-cloud
+      - name: grafana-cloud-logs
+        type: loki
+        urlFrom: nonsensitive(remote.kubernetes.secret.grafana_cloud_logs.data["logsUrl"])
+        auth:
+          type: basic
+          usernameKey: logsUsername
+          passwordKey: logsPassword
+        secret:
+          create: false
+          name: grafana-cloud
+
+    clusterMetrics:
+      enabled: true
+    
+    clusterEvents:
+      enabled: true
+
+    podLogs:
+      enabled: true
+
+    alloy-metrics:
+      enabled: true
+
+    alloy-singleton:
+      enabled: true
+
+    alloy-logs:
+      enabled: true

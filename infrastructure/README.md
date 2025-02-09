@@ -2,8 +2,8 @@
 
 These workloads are deployed for as support to the application workloads:
 
-* [Cert Manager](cert-manager): Allows for automatically provisioning x.509 certificates.
-* [Monitoring](monitoring): A set of services to deploy cluster monitoring, including Telegraf and InfluxDB for metrics gathering and Grafana for dashboards.
-* [Network](network): network-related things:
-  * DynamicDNS Client
-    * Updates Google Domains records with the local IP address for domain names like `petewall.net`
+* [Cert Manager](./cert-manager): Deploys Certificate Issuers and an internal self-signed CA.
+* [Dynamic DNS](./dynamic-dns): Automatically update the DNS settings for my domains using Dynamic DNS.
+* [Ingress Routes](./ingress-routes): 
+* [Sealed Secrets](./sealed-secrets/): Deploys [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) which allows for secrets to be stored in GitOps.
+* [Storage](./storage/): Deploys the NFS storage system to allow provisioning PVCs from Synology NAS
