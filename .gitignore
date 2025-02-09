@@ -1,2 +1,3 @@
 kubeconfig.yaml
+sealed-secrets.cert
 .vscode/

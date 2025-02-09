@@ -2,7 +2,7 @@
 
 These are the steps required to deploy the nodes of the cluster
 
-## M910q nodes
+## Installing Kubernetes
 
 ### Install the OS
 * Download and flash a USB drive with [Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server)
@@ -13,68 +13,61 @@ These are the steps required to deploy the nodes of the cluster
   * Set the hostname `cluster-node-x`, username and password
 * On first boot
   * Update and add packages:
-```
+
+```bash
 sudo apt update
 sudo apt upgrade --yes --fix-missing
 sudo apt autoremove
 sudo apt install fwupd jq net-tools vim
-
-wget -O- https://carvel.dev/install.sh > install.sh
-sudo bash install.sh
-rm install.sh
 ```
+
   * Add id_rsa.pub to ~/.ssh/authorized_keys
 
 ### Set up Microk8s
 
-```
-sudo microk8s enable dns
-sudo microk8s enable helm3
-sudo microk8s enable hostpath-storage
-sudo microk8s enable ingress
+There are a few built-in MicroK8s addons that we will enable. This simplifies the amount of workloads that
+need to be deployed. The add-ons used are:
 
+* [DNS](https://microk8s.io/docs/addon-dns) - Deploys CoreDNS to the cluster.
+* [Ingress](https://microk8s.io/docs/addon-ingress) - Deploys an NGINX Ingress controller.
+
+```bash
+sudo microk8s enable cert-manager
+sudo microk8s enable dns
+sudo microk8s enable ingress
 echo "alias kubectl='sudo microk8s kubectl'" >> ~/.bash_aliases
-echo "alias helm='sudo microk8s helm3'" >> ~/.bash_aliases
 ```
 
 ### Add nodes
 
-On the main-node:
-```
+1. On the main-node, make generate the token required to join the cluster:
+
+```bash
 sudo microk8s add-node
 ```
 
-On the new node:
-```
+2. On the new worker node, use that token:
+
+```bash
 sudo microk8s join ...
 ```
 
-## Raspberry Pi node
+3. Make sure the new node has joined and is ready:
 
-### Install the OS
-* Flash an SD card with a the [Ubuntu Server 22.04 LTS ARM64 image](https://ubuntu.com/raspberry-pi/server)
-  * Use the [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
-  * Before writing, click the gear icon and:
-  * Set the hostname
-  * Enable SSH
-  * Set the username and password
-* On first boot:
-  * Enable cgroups per [MicroK8s instructions](https://microk8s.io/docs/install-raspberry-pi):
-  * Update and add packages:
+```bash
+% kubectl get nodes
+NAME             STATUS   ROLES    AGE    VERSION
+cluster-node-1   Ready    <none>   450d   v1.32.1
+cluster-node-2   Ready    <none>   450d   v1.32.1
 ```
-sudo apt update
-sudo apt upgrade --yes --fix-missing
-sudo apt autoremove
 
-# avahi-daemon enables mDNS, which allows for cluster-node-#.local to be advertised
-# linux-modules-extra-raspi is required for Calico to function properly (https://microk8s.io/docs/troubleshooting)
-sudo apt install avahi-daemon jq linux-modules-extra-raspi net-tools vim
-```
-  * Install Microk8s
-```
-sudo snap install microk8s --classic
-echo "alias kubectl='sudo microk8s kubectl'" >> ~/.bash_aliases
-echo "alias helm='sudo microk8s helm3'" >> ~/.bash_aliases
+## Deploying Workloads
 
-sudo microk8s join ...
+After the Kubernetes cluster is ready, two things need to be manually installed 
+
+### Install Flux
+
 ```
+flux install
+```
+

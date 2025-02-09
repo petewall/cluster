@@ -1,0 +1,53 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: domains
+  namespace: dynamic-dns
+data:
+  domains.json: |
+    ["petewall.net", "home.petewall.net"]
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dynamic-dns
+  namespace: dynamic-dns
+spec:
+  concurrencyPolicy: Replace
+  schedule: "@daily"
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: dynamic-dns
+              image: nixery.dev/shell/curl/jq
+              command:
+                - sh
+                - -c
+                - |-
+                  for DOMAIN in $(jq -r '.[]' "/etc/config/domains.json"); do
+                    export DOMAIN
+                    sh /usr/local/bin/dynamic-dns-cloudflare.sh 
+                  done
+              env:
+                - name: TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: cloudflare
+                      key: token
+              volumeMounts:
+              - name: domains
+                mountPath: /etc/config
+              - name: script
+                mountPath: /usr/local/bin
+          volumes:
+            - name: domains
+              configMap:
+                name: domains
+            - name: script
+              configMap:
+                name: dynamic-dns-script
+          restartPolicy: Never
