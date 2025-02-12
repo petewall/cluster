@@ -1,0 +1,51 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: ghost
+  namespace: ghost
+spec:
+  interval: 1h0m0s
+  url: oci://registry-1.docker.io/bitnamicharts/ghost
+  ref:
+    semver: "^21.0.0"
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ghost
+  namespace: ghost
+spec:
+  interval: 1h0m0s
+  chartRef:
+    name: ghost
+    kind: OCIRepository
+  values:
+    global:
+      storageClass: synology-nfs
+    ghostHost: petewall.net
+    ghostUsername: petewall
+    ghostEmail: pete@petewall.net
+    ghostBlogTitle: Pete Wall
+    existingSecret: ghost-user
+    ghostEnableHttps: true
+    service:
+      type: ClusterIP
+    ingress:
+      enabled: true
+      hostname: petewall.net
+      ingressClassName: public
+      pathType: Prefix
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      tls:
+        - hosts:
+            - petewall.net
+          secretName: ghost-tls
+    mysql:
+      auth:
+        database: ghost_db
+        existingSecret: ghost-db
+      primary:
+        persistence:
+          storageClass: synology-nfs

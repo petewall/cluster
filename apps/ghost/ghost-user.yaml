@@ -1,0 +1,15 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: ghost-user
+  namespace: ghost
+spec:
+  encryptedData:
+    ghost-password: AgAMj3B8jvm5RS+rB+LvadBKZ8Nb+vEiUkVY9XGcgx6onMsgN2LRIcnOxJ3fwI5PVlHDaFbBqqVIoO7hUZOVIlFH4vVlFOkpVRNc85SgyqsuM9+GLbCMwMo/V+HABcUdw3SiG37ec6lkI/dxj1zQNjhmOW9kTaAG3mYK5NBF218lD5f+ZAUI48XSaoDgroMjvKmqGsErgNoa0g92hH07vv8qy6Fw3kmP6evP3KpH/D4JcZFfbgsm0zYvAcvSC+zU4FwDuNi3/FdmdXLOhBtpSFBc9J/UTOGpcrV/rhqAVpUhWgsAqCzxFMwuDdouQIyLhf9Ctrkp+llF8yrK3Cv2r/S74SRkQXRRcc3Xf+MXwn+3h2dZytJZ4FCufwTgS/c2B+JN+cubzdr03JpNn8Kojq75Wclciz31FgBwnO2V99uOGnvV1YiHilkVMRvM6xVXS97d/036T7eEDrAFstnl5sMkDnlzykv0+G/Nu1iWLjd61WnBjM1lzpz6FCMoq2s8e+cQToVG+I+uNSxU/tFhxFFsd7cbZGIxpMUsVkNvj8ob2NXGiaDmk8Yo1FuV3WkMWa3Htr07SNgo6Up/QUpHUfpg70FaHPxZuL8KfWUOBnnMcXoJjOdaZuDAZWcDpMB0xvJUEokbtYc2I8IrXnZfcVopTdai3T8p3QVVR5yUCdOpk9wpK2xCK5u/VIGcPMOr8xx6vdDahMNosLU2Ic3LXrUQWBoTLOZ9FJ/RmUZKXyPvYET4uDlPDC9Ux6YTm876EqIGkQ==
+  template:
+    metadata:
+      creationTimestamp: null
+      name: ghost-user
+      namespace: ghost
