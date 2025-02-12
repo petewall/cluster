@@ -55,6 +55,14 @@ spec:
     podLogs:
       enabled: true
 
+    integrations:
+      cert-manager:
+        instances:
+          - name: cert-manager
+            namespaces: [cert-manager]
+            labelSelectors:
+              app.kubernetes.io/name: cert-manager
+
     alloy-metrics:
       enabled: true
 
