@@ -25,12 +25,12 @@ spec:
             - name: dynamic-dns
               image: nixery.dev/shell/curl/jq
               command:
-                - sh
+                - bash
                 - -c
                 - |-
                   for DOMAIN in $(jq -r '.[]' "/etc/config/domains.json"); do
                     export DOMAIN
-                    sh /usr/local/bin/dynamic-dns-cloudflare.sh 
+                    bash /usr/local/bin/dynamic-dns-cloudflare.sh
                   done
               env:
                 - name: TOKEN
@@ -39,10 +39,10 @@ spec:
                       name: cloudflare
                       key: token
               volumeMounts:
-              - name: domains
-                mountPath: /etc/config
-              - name: script
-                mountPath: /usr/local/bin
+                - name: domains
+                  mountPath: /etc/config
+                - name: script
+                  mountPath: /usr/local/bin
           volumes:
             - name: domains
               configMap:

@@ -23,17 +23,17 @@ metadata:
 spec:
   ingressClassName: public
   rules:
-  - host: home.petewall.net
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: homeassistant
-            port:
-              number: 8123
+    - host: home.petewall.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: homeassistant
+                port:
+                  number: 8123
   tls:
-  - hosts:
-    - home.petewall.net
-    secretName: homeassistant-tls
+    - hosts:
+        - home.petewall.net
+      secretName: homeassistant-tls

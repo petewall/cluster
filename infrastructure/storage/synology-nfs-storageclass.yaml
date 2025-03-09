@@ -1,3 +1,4 @@
+---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -6,7 +7,7 @@ provisioner: nfs.csi.k8s.io
 parameters:
   server: storage.localdomain
   share: /volume1/KubernetesStorage
-reclaimPolicy: Retain # Eventually move to Delete when I don't care about seeing the data
+reclaimPolicy: Retain  # Eventually move to Delete when I don't care about seeing the data
 volumeBindingMode: Immediate
 mountOptions:
   - hard

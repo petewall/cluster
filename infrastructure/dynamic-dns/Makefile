@@ -11,7 +11,8 @@ cloudflare-secret.yaml:
 	kubeseal --cert ../../sealed-secrets.cert --format yaml > $@
 
 dynamic-dns-script.yaml: dynamic-dns-cloudflare.sh
+	echo "---" > $@
 	kubectl create configmap dynamic-dns-script \
 		--namespace dynamic-dns \
 		--from-file dynamic-dns-cloudflare.sh \
-		--dry-run=client -o yaml > $@
+		--dry-run=client -o yaml >> $@
