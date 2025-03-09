@@ -70,4 +70,3 @@ After the Kubernetes cluster is ready, two things need to be manually installed
 ```
 flux install
 ```
-
