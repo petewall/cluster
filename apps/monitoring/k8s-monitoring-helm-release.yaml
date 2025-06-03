@@ -62,6 +62,12 @@ spec:
             namespaces: [cert-manager]
             labelSelectors:
               app.kubernetes.io/name: cert-manager
+      alloy:
+        instances:
+          - name: alloy
+            namespaces: [monitoring]
+            labelSelectors:
+              app.kubernetes.io/name: [alloy-metrics, alloy-logs, alloy-singleton]
 
     alloy-metrics:
       enabled: true
