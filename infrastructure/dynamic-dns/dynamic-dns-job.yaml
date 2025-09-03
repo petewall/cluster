@@ -23,11 +23,12 @@ spec:
         spec:
           containers:
             - name: dynamic-dns
-              image: badouralix/curl-jq:alpine
+              image: alpine
               command:
                 - sh
                 - -c
                 - |-
+                  apk add curl jq
                   for DOMAIN in $(jq -r '.[]' "/etc/config/domains.json"); do
                     export DOMAIN
                     sh /usr/local/bin/dynamic-dns-cloudflare.sh
