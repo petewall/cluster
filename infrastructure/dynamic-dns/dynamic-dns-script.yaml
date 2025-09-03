@@ -2,7 +2,7 @@
 apiVersion: v1
 data:
   dynamic-dns-cloudflare.sh: |
-    #! /bin/bash
+    #! /bin/sh
 
     set -eo pipefail
 

@@ -23,14 +23,14 @@ spec:
         spec:
           containers:
             - name: dynamic-dns
-              image: nixery.dev/shell/curl/jq
+              image: badouralix/curl-jq:alpine
               command:
-                - bash
+                - sh
                 - -c
                 - |-
                   for DOMAIN in $(jq -r '.[]' "/etc/config/domains.json"); do
                     export DOMAIN
-                    bash /usr/local/bin/dynamic-dns-cloudflare.sh
+                    sh /usr/local/bin/dynamic-dns-cloudflare.sh
                   done
               env:
                 - name: TOKEN
