@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: synthetic-monitoring-agent
+  namespace: monitoring
+spec:
+  minReadySeconds: 10
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: synthetic-monitoring-agent
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        name: synthetic-monitoring-agent
+    spec:
+      containers:
+      - args:
+        - --api-server-address=$(API_SERVER)
+        - --api-token=$(API_TOKEN)
+        - --verbose=true
+        env:
+        - name: API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: api-token
+              name: synthetic-monitoring-api
+        - name: API_SERVER
+          valueFrom:
+            secretKeyRef:
+              key: api-server
+              name: synthetic-monitoring-api
+        image: grafana/synthetic-monitoring-agent:latest
+        name: agent
+        ports:
+        - containerPort: 4050
+          name: http-metrics
+        securityContext:
+          capabilities:
+            add:
+            - NET_RAW
+            drop:
+            - all
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 12345
+        resources:
+          requests:
+            cpu: 200m
+            memory: 500Mi
+        volumeMounts:
+        - name: tmp
+          subPath: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}

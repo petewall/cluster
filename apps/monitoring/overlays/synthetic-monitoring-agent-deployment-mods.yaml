@@ -1,0 +1,35 @@
+#@ load("@ytt:overlay", "overlay")
+#@overlay/match by=overlay.subset({"kind": "Deployment"})
+---
+metadata:
+  #@overlay/replace
+  name: synthetic-monitoring-agent
+  #@overlay/replace
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      #@overlay/replace
+      name: synthetic-monitoring-agent
+  template:
+    metadata:
+      labels:
+        #@overlay/replace
+        name: synthetic-monitoring-agent
+    spec:
+      containers:
+        #@overlay/match by="name"
+        - name: agent
+          env:
+            #@overlay/match by=overlay.subset({"name": "API_TOKEN"})
+            - name: API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  #@overlay/replace
+                  name: synthetic-monitoring-api
+            #@overlay/match by=overlay.subset({"name": "API_SERVER"})
+            - name: API_SERVER
+              valueFrom:
+                secretKeyRef:
+                  #@overlay/replace
+                  name: synthetic-monitoring-api
