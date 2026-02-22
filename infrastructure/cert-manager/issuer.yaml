@@ -5,14 +5,14 @@ metadata:
   name: letsencrypt-staging
 spec:
   acme:
-  server: https://acme-staging-v02.api.letsencrypt.org/directory
-  email: pete@petewall.net
-  privateKeySecretRef:
-    name: letsencrypt-staging
-  solvers:
-    - http01:
-        ingress:
-          class: public
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: pete@petewall.net
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    solvers:
+      - http01:
+          ingress:
+            class: public
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer

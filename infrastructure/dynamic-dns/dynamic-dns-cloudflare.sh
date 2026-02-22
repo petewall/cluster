@@ -22,7 +22,7 @@ DNS_ID=$(curl --url "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_r
     --header "Authorization: Bearer ${TOKEN}" \
     | jq --arg DOMAIN "${DOMAIN}" -r '.result[] | select(.name==$DOMAIN and .type=="A") | .id')
 
-IP=$(curl icanhazip.com)
+IP=$(curl https://icanhazip.com/)
 
 curl --request PUT \
   --url "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${DNS_ID}" \
