@@ -7,10 +7,10 @@ all: grafana-cloud-secret.yaml synthetic-monitoring-secret.yaml synthetic-monito
 grafana-cloud-secret.yaml:
 	kubectl create secret generic grafana-cloud \
 		--namespace monitoring \
-		--from-literal=metricsUrl=$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics/website") \
+		--from-literal=metricsUrl=$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics/website")./api/prom/push \
 		--from-literal=metricsUsername=$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics/username") \
 		--from-literal=metricsPassword=$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics/password") \
-		--from-literal=logsUrl=$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Logs/website") \
+		--from-literal=logsUrl=$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Logs/website")./loki/api/v1/push \
 		--from-literal=logsUsername=$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Logs/username") \
 		--from-literal=logsPassword=$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Logs/password") \
 		-o yaml --dry-run=client | \
