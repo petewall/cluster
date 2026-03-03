@@ -11,7 +11,7 @@ metadata:
   namespace: network
 spec:
   type: ExternalName
-  externalName: homeassistant.localdomain
+  externalName: homeassistant.localdomain.
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
