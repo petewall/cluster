@@ -18,6 +18,7 @@ grafana-cloud-secret.yaml:
 
 SYNTHETIC_MONITORING_API_URL = $(shell op read --account my.1password.com "op://Lab/Grafana Cloud Synthetic Monitoring/website")
 SYNTHETIC_MONITORING_API_TOKEN = $(shell op read --account my.1password.com "op://Lab/Grafana Cloud Synthetic Monitoring/password")
+SYNTHETIC_MONITORING_AGENT_VERSION = $(shell curl -s https://api.github.com/repos/grafana/synthetic-monitoring-agent/releases/latest | jq -r '.tag_name')
 
 synthetic-monitoring-secret.yaml:
 	kubectl create secret generic synthetic-monitoring-api \
@@ -30,5 +31,5 @@ synthetic-monitoring-secret.yaml:
 synthetic-monitoring-agent-deployment.yaml: overlays/synthetic-monitoring-agent-deployment-mods.yaml
 		set -o pipefail; \
 		curl -fsSL https://raw.githubusercontent.com/grafana/synthetic-monitoring-agent/main/examples/kubernetes/deployment.yaml | \
-		ytt -f - -f $< > $@
+		ytt -f - -f $< --data-value version=$(SYNTHETIC_MONITORING_AGENT_VERSION) > $@
 	
