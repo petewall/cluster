@@ -1,0 +1,29 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dynamic-dns
+  namespace: dynamic-dns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dynamic-dns
+  template:
+    metadata:
+      labels:
+        app: dynamic-dns
+    spec:
+      containers:
+        - name: dynamic-dns
+          image: favonia/cloudflare-ddns:1.15.1
+          env:
+            - name: CLOUDFLARE_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cloudflare
+                  key: token
+            - name: DOMAINS
+              value: petewall.net,home.petewall.net
+            - name: PROXIED
+              value: "false"
