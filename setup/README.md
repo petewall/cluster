@@ -28,12 +28,10 @@ sudo apt install fwupd jq net-tools vim
 There are a few built-in MicroK8s addons that we will enable. This simplifies the amount of workloads that
 need to be deployed. The add-ons used are:
 
-* [DNS](https://microk8s.io/docs/addon-dns) - Deploys CoreDNS to the cluster.
 * [Ingress](https://microk8s.io/docs/addon-ingress) - Deploys an NGINX Ingress controller.
 
 ```bash
 sudo microk8s enable cert-manager
-sudo microk8s enable dns
 sudo microk8s enable ingress
 echo "alias kubectl='sudo microk8s kubectl'" >> ~/.bash_aliases
 ```
