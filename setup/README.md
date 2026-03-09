@@ -31,7 +31,6 @@ need to be deployed. The add-ons used are:
 * [Ingress](https://microk8s.io/docs/addon-ingress) - Deploys an NGINX Ingress controller.
 
 ```bash
-sudo microk8s enable cert-manager
 sudo microk8s enable ingress
 echo "alias kubectl='sudo microk8s kubectl'" >> ~/.bash_aliases
 ```
