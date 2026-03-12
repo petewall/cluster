@@ -1,0 +1,72 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: home-petewall-net-tls
+  namespace: istio-system
+spec:
+  secretName: home-petewall-net-tls
+  dnsNames:
+    - home.petewall.net
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+---
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: home-petewall-net-gateway
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - home.petewall.net
+      tls:
+        mode: SIMPLE
+        credentialName: home-petewall-net-tls
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - home.petewall.net
+      tls:
+        httpsRedirect: true
+---
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: homeassistant
+  namespace: istio-system
+spec:
+  hosts:
+    - homeassistant.localdomain
+  ports:
+    - number: 8123
+      name: http
+      protocol: HTTP
+  location: MESH_EXTERNAL
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: homeassistant
+  namespace: istio-system
+spec:
+  hosts:
+    - home.petewall.net
+  gateways:
+    - istio-system/home-petewall-net-gateway
+  http:
+    - route:
+        - destination:
+            host: homeassistant.localdomain
+            port:
+              number: 8123

@@ -1,0 +1,40 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: petewall-net-tls
+  namespace: istio-system
+spec:
+  secretName: petewall-net-tls
+  dnsNames:
+    - petewall.net
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+---
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: petewall-net-gateway
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - petewall.net
+      tls:
+        mode: SIMPLE
+        credentialName: petewall-net-tls
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - petewall.net
+      tls:
+        httpsRedirect: true

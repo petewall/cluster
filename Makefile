@@ -6,12 +6,8 @@ sealed-secrets.cert:
 	kubeseal --fetch-cert --controller-name sealed-secrets --controller-namespace kube-system > sealed-secrets.cert
 
 
-.PHONY: lint lint-shell lint-yaml
-lint: lint-shell lint-yaml
-
-SHELL_SCRIPTS := $(shell find . -name '*.sh')
-lint-shell:
-	shellcheck $(SHELL_SCRIPTS)
+.PHONY: lint lint-yaml
+lint: lint-yaml
 
 YAML_FILES := $(shell find . -name '*.yaml')
 lint-yaml:

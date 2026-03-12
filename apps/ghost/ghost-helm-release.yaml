@@ -28,20 +28,18 @@ spec:
     ghostEmail: pete@petewall.net
     ghostBlogTitle: Pete Wall
     existingSecret: ghost-user
-    ghostEnableHttps: true
+    ghostEnableHttps: false
+    extraEnvVars:
+      - name: ghost__trustProxy
+        value: "true"
+    customReadinessProbe:
+      tcpSocket:
+        port: 2368
+      initialDelaySeconds: 30
+      periodSeconds: 5
+      failureThreshold: 6
     service:
       type: ClusterIP
-    ingress:
-      enabled: true
-      hostname: petewall.net
-      ingressClassName: public
-      pathType: Prefix
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-prod
-      tls:
-        - hosts:
-            - petewall.net
-          secretName: ghost-tls
     mysql:
       auth:
         database: ghost_db

@@ -2,6 +2,17 @@
 
 These are the steps required to deploy the nodes of the cluster
 
+## Set up routing
+
+1. Adjust DCHP settings to only allow serving IP addresses in the range 192.168.1.x - 192.168.1.250
+   This allows for MetalLB to provision its own IP addresses for LoadBalancer services.
+
+2. Define the `.localdomain` domain name for the network.
+   This is used to find the NAS storage based on hostname, rather than IP address (which isn't static).
+
+3. Set up port forwarding for 80, 443 to the Istio Ingress Gateway IP, typically 192.18.1.251.
+   This will forward external HTTP and HTTPS traffic to the cluster, where Istio will forward it to the appropriate workload using VirtualServices.
+
 ## Installing Kubernetes
 
 ### Install the OS
@@ -28,12 +39,14 @@ sudo apt install fwupd jq net-tools vim
 There are a few built-in MicroK8s addons that we will enable. This simplifies the amount of workloads that
 need to be deployed. The add-ons used are:
 
-* [Ingress](https://microk8s.io/docs/addon-ingress) - Deploys an NGINX Ingress controller.
+* [MetalLB](https://microk8s.io/docs/addon-metallb) - Provides LoadBalancer IP assignment for services. The IP range `192.168.1.251-192.168.1.254` is reserved outside the router's DHCP pool.
 
 ```bash
-sudo microk8s enable ingress
+sudo microk8s enable metallb:192.168.1.251-192.168.1.254
 echo "alias kubectl='sudo microk8s kubectl'" >> ~/.bash_aliases
 ```
+
+> **Note:** Ingress is handled by Istio, deployed via GitOps in `infrastructure/istio/`.
 
 ### Add nodes
 
