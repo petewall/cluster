@@ -1,0 +1,19 @@
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: ironwall-db
+  namespace: ironwall
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - istio-system/ironwall-db-petewall-net-gateway
+  tcp:
+    - match:
+        - port: 5432
+      route:
+        - destination:
+            host: ironwall-db-rw.ironwall.svc.cluster.local
+            port:
+              number: 5432
