@@ -24,6 +24,6 @@ spec:
                   name: cloudflare
                   key: token
             - name: DOMAINS
-              value: petewall.net,home.petewall.net
+              value: petewall.net,home.petewall.net,ironwall-db.petewall.net
             - name: PROXIED
               value: "false"

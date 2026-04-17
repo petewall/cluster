@@ -15,3 +15,26 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: istio
+  values:
+    service:
+      # Preserve source client IPs so AuthorizationPolicy IP allowlists
+      # (e.g. for the ironwall-db Postgres ingress) can filter on the
+      # real client IP instead of a node SNAT address.
+      externalTrafficPolicy: Local
+      ports:
+        - name: status-port
+          port: 15021
+          protocol: TCP
+          targetPort: 15021
+        - name: http2
+          port: 80
+          protocol: TCP
+          targetPort: 80
+        - name: https
+          port: 443
+          protocol: TCP
+          targetPort: 443
+        - name: tcp-postgres-ironwall
+          port: 5432
+          protocol: TCP
+          targetPort: 5432

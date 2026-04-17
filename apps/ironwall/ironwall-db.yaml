@@ -1,8 +1,8 @@
 ---
 # CloudNativePG Cluster for ironwall
-# CNPG automatically creates two secrets:
-#   ironwall-db-superuser — postgres superuser (for admin/migrations)
-#   ironwall-db-app       — application user (use this in the ironwall Deployment)
+# Application user credentials come from the ironwall-db-app SealedSecret
+# (sourced from 1Password via the Makefile in this directory).
+# CNPG auto-generates the superuser secret: ironwall-db-superuser
 #
 # DATABASE_URL for the ironwall app:
 #   postgres://ironwall:<password>@ironwall-db-rw:5432/ironwall
@@ -24,6 +24,8 @@ spec:
     initdb:
       database: ironwall
       owner: ironwall
+      secret:
+        name: ironwall-db-app
 
   storage:
     size: 10Gi
