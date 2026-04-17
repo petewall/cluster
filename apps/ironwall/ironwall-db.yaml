@@ -1,0 +1,32 @@
+---
+# CloudNativePG Cluster for ironwall
+# CNPG automatically creates two secrets:
+#   ironwall-db-superuser — postgres superuser (for admin/migrations)
+#   ironwall-db-app       — application user (use this in the ironwall Deployment)
+#
+# DATABASE_URL for the ironwall app:
+#   postgres://ironwall:<password>@ironwall-db-rw:5432/ironwall
+# where <password> comes from ironwall-db-app secret key "password"
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: ironwall-db
+  namespace: ironwall
+spec:
+  instances: 1
+
+  postgresql:
+    parameters:
+      max_connections: "100"
+      shared_buffers: "128MB"
+
+  bootstrap:
+    initdb:
+      database: ironwall
+      owner: ironwall
+
+  storage:
+    size: 10Gi
+
+  monitoring:
+    enablePodMonitor: true
