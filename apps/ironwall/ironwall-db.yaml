@@ -25,10 +25,11 @@ spec:
       database: ironwall
       owner: ironwall
       secret:
-        name: ironwall-db-app
+        name: ironwall-db-user
 
   storage:
     size: 10Gi
+    storageClass: synology-nfs
 
   monitoring:
     enablePodMonitor: true

@@ -25,7 +25,7 @@ spec:
     cluster:
       name: wallhouse
     destinations:
-      - name: grafana-cloud-metrics
+      grafana-cloud-metrics:
         type: prometheus
         urlFrom: nonsensitive(remote.kubernetes.secret.grafana_cloud_metrics.data["metricsUrl"])
         auth:
@@ -35,7 +35,7 @@ spec:
         secret:
           create: false
           name: grafana-cloud
-      - name: grafana-cloud-logs
+      grafana-cloud-logs:
         type: loki
         urlFrom: nonsensitive(remote.kubernetes.secret.grafana_cloud_logs.data["logsUrl"])
         auth:
@@ -49,10 +49,17 @@ spec:
     clusterMetrics:
       enabled: true
 
+    hostMetrics:
+      enabled: true
+      linuxHosts:
+        enabled: true
+    
     clusterEvents:
       enabled: true
+      clustering:
+        enabled: true
 
-    podLogs:
+    podLogsViaLoki:
       enabled: true
 
     integrations:
@@ -69,11 +76,12 @@ spec:
             labelSelectors:
               app.kubernetes.io/name: [alloy-metrics, alloy-logs, alloy-singleton]
 
-    alloy-metrics:
-      enabled: true
+    telemetryServices:
+      kube-state-metrics:
+        deploy: true
+      node-exporter:
+        deploy: true
 
-    alloy-singleton:
-      enabled: true
-
-    alloy-logs:
-      enabled: true
+    collectors:
+      alloy:
+        presets: [clustered, filesystem-log-reader, daemonset]
