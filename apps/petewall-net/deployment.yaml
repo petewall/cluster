@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: petewall-net
+  namespace: petewall-net
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: petewall-net
+  template:
+    metadata:
+      labels:
+        app: petewall-net
+    spec:
+      containers:
+        - name: nginx
+          image: ghcr.io/petewall/petewall.net:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi

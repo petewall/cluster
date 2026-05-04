@@ -2,8 +2,8 @@
 apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
-  name: ghost
-  namespace: ghost
+  name: petewall-net
+  namespace: petewall-net
 spec:
   hosts:
     - petewall.net
@@ -12,6 +12,6 @@ spec:
   http:
     - route:
         - destination:
-            host: ghost
+            host: petewall-net
             port:
               number: 80
