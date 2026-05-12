@@ -1,0 +1,17 @@
+#@ load("@ytt:overlay", "overlay")
+#@overlay/match by=overlay.subset({"kind": "Deployment"})
+---
+metadata:
+  #@overlay/match missing_ok=True
+  namespace: monitoring
+spec:
+  template:
+    spec:
+      containers:
+        #@overlay/match by="name"
+        - name: grafana-pdc-agent
+          args:
+            #@overlay/append
+            - -ssh-flag
+            #@overlay/append
+            - -o PermitRemoteOpen=*.ironwall.svc.cluster.local:5432
