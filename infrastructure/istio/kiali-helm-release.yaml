@@ -30,6 +30,10 @@ spec:
       targetPath: external_services.prometheus.url
     - kind: Secret
       name: kiali-grafana-cloud
+      valuesKey: prometheusHealthCheckUrl
+      targetPath: external_services.prometheus.health_check_url
+    - kind: Secret
+      name: kiali-grafana-cloud
       valuesKey: prometheusUser
       targetPath: external_services.prometheus.auth.username
   values:

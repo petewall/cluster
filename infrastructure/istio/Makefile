@@ -10,6 +10,7 @@ kiali-grafana-cloud-secret.yaml:
 		--from-literal=grafanaUser='"$(shell op read --account my.1password.com "op://Lab/petewall.grafana.net Kiali SA/username")"' \
 		--from-literal=grafanaToken=$(shell op read --account my.1password.com "op://Lab/petewall.grafana.net Kiali SA/password") \
 		--from-literal=prometheusUrl='"$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics/website")./api/prom"' \
+		--from-literal=prometheusHealthCheckUrl='"$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics/website")./api/prom/api/v1/query?query=1"' \
 		--from-literal=prometheusUser='"$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics/username")"' \
 		--from-literal=prometheusPassword=$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics/password") \
 		-o yaml --dry-run=client | \
