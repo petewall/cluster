@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - grafana-cloud-secret.yaml
+  - synthetic-monitoring-secret.yaml
+  - synthetic-monitoring-agent-deployment.yaml
+  - pdc-agent-secret.yaml
+  - pdc-agent-deployment.yaml
+  - k8s-monitoring-helm-release.yaml
