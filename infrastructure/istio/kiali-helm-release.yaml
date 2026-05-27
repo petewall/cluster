@@ -37,6 +37,8 @@ spec:
           password: secret:kiali-grafana-cloud:grafanaToken
       prometheus:
         url: secret:kiali-grafana-cloud:prometheusUrl
+        query_scope:
+          cluster: wallhouse
         auth:
           type: basic
           username: secret:kiali-grafana-cloud:prometheusUser
