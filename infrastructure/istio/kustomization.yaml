@@ -5,6 +5,7 @@ resources:
   - istio-base-helm-release.yaml
   - istiod-helm-release.yaml
   - istio-ingressgateway-helm-release.yaml
+  - kiali-grafana-cloud-secret.yaml
   - kiali-helm-release.yaml
   - petewall-net.yaml
   - home-petewall-net.yaml

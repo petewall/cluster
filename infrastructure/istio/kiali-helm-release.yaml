@@ -26,3 +26,18 @@ spec:
   values:
     auth:
       strategy: anonymous
+    external_services:
+      grafana:
+        enabled: false
+        internal_url: secret:kiali-grafana-cloud:grafanaUrl
+        external_url: secret:kiali-grafana-cloud:grafanaUrl
+        auth:
+          type: basic
+          username: secret:kiali-grafana-cloud:grafanaUser
+          password: secret:kiali-grafana-cloud:grafanaToken
+      prometheus:
+        url: secret:kiali-grafana-cloud:prometheusUrl
+        auth:
+          type: basic
+          username: secret:kiali-grafana-cloud:prometheusUser
+          password: secret:kiali-grafana-cloud:prometheusPassword
