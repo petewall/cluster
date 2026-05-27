@@ -55,6 +55,13 @@ pdc-agent-deployment.yaml: overlays/pdc-agent-deployment-mods.yaml
 			ytt -f - -f $< > $@
 # 			ytt -f - -f $< --data-value version=$(PDC_VERSION) > $@
 
+##@ Kubernetes Monitoring Helm chart
+k8s-monitoring-helm-values.yaml: k8s-monitoring-helm-release.yaml
+	yq 'select(document_index == 1) | .spec.values' $< > $@
+
+k8s-monitoring-helm-output.yaml: k8s-monitoring-helm-values.yaml
+	helm template --repo https://grafana.github.io/helm-charts k8s-monitoring k8s-monitoring -f $< > $@
+
 ##@ General
 
 # The help target prints out all targets with their descriptions organized
