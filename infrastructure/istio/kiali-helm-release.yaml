@@ -23,23 +23,22 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: kiali
+  valuesFrom:
+    - kind: Secret
+      name: kiali-grafana-cloud
+      valuesKey: prometheusUrl
+      targetPath: external_services.prometheus.url
+    - kind: Secret
+      name: kiali-grafana-cloud
+      valuesKey: prometheusUser
+      targetPath: external_services.prometheus.auth.username
   values:
     auth:
       strategy: anonymous
     external_services:
       grafana:
         enabled: false
-        internal_url: secret:kiali-grafana-cloud:grafanaUrl
-        external_url: secret:kiali-grafana-cloud:grafanaUrl
-        auth:
-          type: basic
-          username: secret:kiali-grafana-cloud:grafanaUser
-          password: secret:kiali-grafana-cloud:grafanaToken
       prometheus:
-        url: secret:kiali-grafana-cloud:prometheusUrl
-        query_scope:
-          cluster: wallhouse
         auth:
           type: basic
-          username: secret:kiali-grafana-cloud:prometheusUser
           password: secret:kiali-grafana-cloud:prometheusPassword
