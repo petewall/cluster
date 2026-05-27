@@ -1,9 +1,13 @@
-# Infrastructure Workloads
+# Infrastructure
 
-These workloads are deployed for as support to the application workloads:
+Cluster-wide controllers and supporting resources. Applied by Flux via the
+`infrastructure` [Kustomization](../cluster/infrastructure.yaml) with
+`wait: true`, so [`apps/`](../apps) won't start applying until everything
+here is `Ready`.
 
-* [Cert Manager](./cert-manager): Deploys Certificate Issuers and an internal self-signed CA.
-* [Istio](./istio): Deploys the Istio service mesh and ingress gateway, replacing the MicroK8s NGINX addon.
-* [Dynamic DNS](./dynamic-dns): Automatically update the DNS settings for my domains using Dynamic DNS.
-* [Sealed Secrets](./sealed-secrets/): Deploys [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) which allows for secrets to be stored in GitOps.
-* [Storage](./storage/): Deploys the NFS storage system to allow provisioning PVCs from Synology NAS
+* [cert-manager](./cert-manager) — Certificate issuers and an internal self-signed CA.
+* [cnpg](./cnpg) — CloudNativePG operator for PostgreSQL.
+* [dynamic-dns](./dynamic-dns) — Updates Cloudflare DNS records so the home IP stays reachable.
+* [istio](./istio) — Service mesh + ingress gateway (replaces the MicroK8s NGINX addon).
+* [sealed-secrets](./sealed-secrets) — [Bitnami Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) controller. Lets us commit encrypted secrets to git.
+* [storage](./storage) — NFS CSI driver + StorageClass backed by the Synology NAS.
