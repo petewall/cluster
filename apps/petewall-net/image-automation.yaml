@@ -45,4 +45,4 @@ spec:
       branch: main
   update:
     path: ./apps/petewall-net
-    strategy: Setter
+    strategy: Setters

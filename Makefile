@@ -17,7 +17,9 @@ bootstrap: ## Run Flux Bootstrap to enable GitOps.
 		--repository=cluster \
 		--branch=main \
 		--path=cluster \
-		--personal
+		--personal \
+		--components-extra=image-reflector-controller,image-automation-controller \
+		--read-write-key
 
 ##@ Testing
 
