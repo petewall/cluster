@@ -1,0 +1,48 @@
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: petewall-net
+  namespace: flux-system
+spec:
+  image: ghcr.io/petewall/petewall.net
+  interval: 5m
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: petewall-net
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: petewall-net
+  filterTags:
+    pattern: '^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}$' # only YYYY.M.D tags; ignore latest/sha
+  policy:
+    semver:
+      range: '>=0.0.0'
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageUpdateAutomation
+metadata:
+  name: petewall-net
+  namespace: flux-system
+spec:
+  interval: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        name: fluxcdbot
+        email: fluxcdbot@users.noreply.github.com
+      messageTemplate: 'Bump petewall-net to {{range .Updated.Images}}{{println .}}{{end}}'
+    push:
+      branch: main
+  update:
+    path: ./apps/petewall-net
+    strategy: Setter
