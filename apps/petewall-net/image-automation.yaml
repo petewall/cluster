@@ -40,7 +40,7 @@ spec:
       author:
         name: fluxcdbot
         email: fluxcdbot@users.noreply.github.com
-      messageTemplate: 'Bump petewall-net to {{range .Updated.Images}}{{println .}}{{end}}'
+      messageTemplate: 'Bump petewall-net to {{range .Changed.Changes}}{{.NewValue}}{{end}}'
     push:
       branch: main
   update:
