@@ -3,5 +3,3 @@ kind: Kustomization
 resources:
   - monitoring
   - petewall-net
-  # ironwall is managed by its own Flux Kustomization
-  # (cluster/ironwall.yaml) so it can be suspended independently.
