@@ -3,7 +3,6 @@ kind: Kustomization
 resources:
   - sealed-secrets
   - cert-manager
-  - cnpg
   - dynamic-dns
   - istio
   - storage
