@@ -31,6 +31,10 @@ spec:
     # "cpu" (used by the example models) and several "nvidia-gpu-*" profiles
     # that already tolerate the nvidia.com/gpu taint.
     replicaCount: 1
+    # Headless/async use case — no chat UI. (Its StatefulSet also wants a PVC
+    # and there's no default StorageClass, so it would otherwise hang Pending.)
+    open-webui:
+      enabled: false
     #
     # --- When the GPU node arrives ---
     # 1. Make nodes advertise nvidia.com/gpu: `microk8s enable gpu`, or apply
