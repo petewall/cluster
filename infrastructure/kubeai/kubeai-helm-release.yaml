@@ -45,10 +45,12 @@ spec:
     #     nodeSelector:
     #       nvidia.com/gpu.present: "true"
     #
-    # --- HuggingFace token (needed for hf:// gated/GPU models) ---
-    # Don't commit the token. Create a SealedSecret named "huggingface" with
-    # key "token", then:
-    # secrets:
-    #   huggingface:
-    #     create: false
-    #     name: huggingface
+    # --- HuggingFace token for hf:// gated/GPU models ---
+    # Points KubeAI's config (secretNames.huggingface) at the "huggingface"
+    # SealedSecret (key "token") produced by the Makefile in this directory, so
+    # model pods get HF_TOKEN. The chart fails to render if create=false
+    # without a name.
+    secrets:
+      huggingface:
+        create: false
+        name: huggingface
