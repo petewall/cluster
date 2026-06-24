@@ -1,0 +1,50 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: kubeai
+  namespace: kubeai
+spec:
+  interval: 1h
+  url: https://www.kubeai.org
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kubeai
+  namespace: kubeai
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: kubeai
+      version: 0.23.2
+      sourceRef:
+        kind: HelmRepository
+        name: kubeai
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values:
+    # CPU-only for now. The chart ships default resourceProfiles, including
+    # "cpu" (used by the example models) and several "nvidia-gpu-*" profiles
+    # that already tolerate the nvidia.com/gpu taint.
+    replicaCount: 1
+    #
+    # --- When the GPU node arrives ---
+    # 1. Make nodes advertise nvidia.com/gpu: `microk8s enable gpu`, or apply
+    #    KubeAI's values-nvidia-k8s-device-plugin.yaml overlay.
+    # 2. If the GPU node needs targeting, pin a profile to it, e.g.:
+    # resourceProfiles:
+    #   nvidia-gpu-rtx4070-8gb:
+    #     nodeSelector:
+    #       nvidia.com/gpu.present: "true"
+    #
+    # --- HuggingFace token (needed for hf:// gated/GPU models) ---
+    # Don't commit the token. Create a SealedSecret named "huggingface" with
+    # key "token", then:
+    # secrets:
+    #   huggingface:
+    #     create: false
+    #     name: huggingface

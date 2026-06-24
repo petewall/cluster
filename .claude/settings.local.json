@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(kubectl get:*)",
-      "Bash(kubectl logs:*)"
+      "Bash(kubectl logs:*)",
+      "WebFetch(domain:www.kubeai.org)"
     ]
   }
 }
