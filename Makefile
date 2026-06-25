@@ -23,23 +23,39 @@ bootstrap: ## Run Flux Bootstrap to enable GitOps.
 
 ##@ Testing
 
-.PHONY: lint lint-yaml lint-kube render
+.PHONY: lint lint-yaml lint-kube render clean
 lint: lint-yaml lint-kube ## Run all linters.
 
-YAML_FILES := $(shell find . -name '*.yaml')
+YAML_FILES := $(shell find . -name '*.yaml' -not -path './.temp/*')
 lint-yaml: ## Lint YAML files.
 	yamllint $(YAML_FILES)
 
-RENDERED_DIR := rendered
-render: ## Render HelmReleases + kustomize overlays to plain manifests under rendered/.
-	rm -rf $(RENDERED_DIR)
-	./scripts/lint/render-helmreleases.sh $(RENDERED_DIR)/helm
-	mkdir -p $(RENDERED_DIR)/kustomize
-	kustomize build infrastructure > $(RENDERED_DIR)/kustomize/infrastructure.yaml
-	kustomize build apps > $(RENDERED_DIR)/kustomize/apps.yaml
+# Every Flux HelmRelease (tracked files only; '^kind:' is the top-level doc kind,
+# so sourceRef references and the flux-system components are excluded).
+HELMRELEASES := $(shell git ls-files -z '*.yaml' | xargs -0 grep -lE '^kind: HelmRelease' | grep -v flux-system)
+RENDER_DIR := .temp/rendered
+# foo/bar-helm-release.yaml  ->  .temp/rendered/bar-output.yaml
+RENDERED := $(foreach hr,$(HELMRELEASES),$(RENDER_DIR)/$(patsubst %-helm-release.yaml,%,$(notdir $(hr)))-output.yaml)
 
-lint-kube: render ## Lint rendered manifests for known-bad configs (kube-linter). Needs helm, yq, kustomize, kube-linter.
-	kube-linter lint $(RENDERED_DIR) --config .kube-linter.yaml
+render: $(RENDERED) ## Render every HelmRelease to .temp/rendered/<chart>-output.yaml.
+
+# Generate one rule per HelmRelease (works on make 3.81, unlike a
+# secondary-expansion pattern rule). Each output depends only on its own release
+# file, so `make` re-renders just the charts whose source changed.
+define render_rule
+$(RENDER_DIR)/$(patsubst %-helm-release.yaml,%,$(notdir $(1)))-output.yaml: $(1) | $(RENDER_DIR)
+	./scripts/lint/render-helmrelease.sh $$< $$@
+endef
+$(foreach hr,$(HELMRELEASES),$(eval $(call render_rule,$(hr))))
+
+$(RENDER_DIR):
+	mkdir -p $@
+
+lint-kube: $(RENDERED) ## Lint rendered HelmRelease manifests for known-bad configs (kube-linter).
+	kube-linter lint $(RENDER_DIR) --config .kube-linter.yaml
+
+clean: ## Remove generated/temporary files (.temp/).
+	rm -rf .temp
 
 
 ##@ General
