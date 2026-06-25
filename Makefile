@@ -33,30 +33,38 @@ lint-yaml: ## Lint YAML files.
 # Every Flux HelmRelease (tracked files only; '^kind:' is the top-level doc kind,
 # so sourceRef references and the flux-system components are excluded).
 HELMRELEASES := $(shell git ls-files -z '*.yaml' | xargs -0 grep -lE '^kind: HelmRelease' | grep -v flux-system)
-RENDER_DIR := .temp/rendered
-# foo/bar-helm-release.yaml  ->  .temp/rendered/bar-output.yaml
-RENDERED := $(foreach hr,$(HELMRELEASES),$(RENDER_DIR)/$(patsubst %-helm-release.yaml,%,$(notdir $(hr)))-output.yaml)
+RENDERED_HELMRELEASES := $(foreach hr,$(HELMRELEASES),.temp/rendered/$(patsubst %-helm-release.yaml,%,$(notdir $(hr)))-output.yaml)
 
-render: $(RENDERED) ## Render every HelmRelease to .temp/rendered/<chart>-output.yaml.
+render: $(RENDERED_HELMRELEASES) ## Render every HelmRelease to .temp/rendered/<chart>-output.yaml.
+
+# Every input file kustomize reads for these overlays, so a change to any of them
+# re-renders the output (targets with no prerequisites are never rebuilt once they exist).
+INFRASTRUCTURE_SOURCES := $(shell find infrastructure -type f)
+APPS_SOURCES := $(shell find apps -type f)
+
+.temp/rendered/infrastructure.yaml: $(INFRASTRUCTURE_SOURCES)
+	@mkdir -p .temp/rendered
+	kustomize build infrastructure > $@
+
+.temp/rendered/apps.yaml: $(APPS_SOURCES)
+	@mkdir -p .temp/rendered
+	kustomize build apps > $@
 
 # Generate one rule per HelmRelease (works on make 3.81, unlike a
 # secondary-expansion pattern rule). Each output depends only on its own release
 # file, so `make` re-renders just the charts whose source changed.
 define render_rule
-$(RENDER_DIR)/$(patsubst %-helm-release.yaml,%,$(notdir $(1)))-output.yaml: $(1) | $(RENDER_DIR)
+.temp/rendered/$(patsubst %-helm-release.yaml,%,$(notdir $(1)))-output.yaml: $(1)
+	@mkdir -p .temp/rendered
 	./scripts/lint/render-helmrelease.sh $$< $$@
 endef
 $(foreach hr,$(HELMRELEASES),$(eval $(call render_rule,$(hr))))
 
-$(RENDER_DIR):
-	mkdir -p $@
-
-lint-kube: $(RENDERED) ## Lint rendered HelmRelease manifests for known-bad configs (kube-linter).
-	kube-linter lint $(RENDER_DIR) --config .kube-linter.yaml
+lint-kube: $(RENDERED_HELMRELEASES) .temp/rendered/infrastructure.yaml .temp/rendered/apps.yaml ## Lint rendered manifests for known-bad configs (kube-linter).
+	kube-linter lint .temp/rendered --config .kube-linter.yaml
 
 clean: ## Remove generated/temporary files (.temp/).
 	rm -rf .temp
-
 
 ##@ General
 
