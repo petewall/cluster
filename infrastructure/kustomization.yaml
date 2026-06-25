@@ -6,4 +6,5 @@ resources:
   - dynamic-dns
   - istio
   - kubeai
+  - metrics-server
   - storage
