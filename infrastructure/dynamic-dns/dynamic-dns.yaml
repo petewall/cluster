@@ -14,9 +14,25 @@ spec:
       labels:
         app: dynamic-dns
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
       containers:
         - name: dynamic-dns
           image: favonia/cloudflare-ddns:1.15.1
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
           env:
             - name: CLOUDFLARE_API_TOKEN
               valueFrom:
