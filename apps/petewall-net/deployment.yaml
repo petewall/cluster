@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: ghcr.io/petewall/petewall.net:2026.6.12 # {"$imagepolicy": "flux-system:petewall-net"}
+          image: ghcr.io/petewall/petewall.net:2026.6.25 # {"$imagepolicy": "flux-system:petewall-net"}
           ports:
             - containerPort: 80
               name: http
