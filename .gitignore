@@ -1,3 +1,5 @@
 kubeconfig.yaml
 sealed-secrets.cert
 .vscode/
+rendered/
+*.sarif

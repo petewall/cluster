@@ -23,12 +23,23 @@ bootstrap: ## Run Flux Bootstrap to enable GitOps.
 
 ##@ Testing
 
-.PHONY: lint lint-yaml
-lint: lint-yaml ## Run all linters.
+.PHONY: lint lint-yaml lint-kube render
+lint: lint-yaml lint-kube ## Run all linters.
 
 YAML_FILES := $(shell find . -name '*.yaml')
 lint-yaml: ## Lint YAML files.
 	yamllint $(YAML_FILES)
+
+RENDERED_DIR := rendered
+render: ## Render HelmReleases + kustomize overlays to plain manifests under rendered/.
+	rm -rf $(RENDERED_DIR)
+	./scripts/lint/render-helmreleases.sh $(RENDERED_DIR)/helm
+	mkdir -p $(RENDERED_DIR)/kustomize
+	kustomize build infrastructure > $(RENDERED_DIR)/kustomize/infrastructure.yaml
+	kustomize build apps > $(RENDERED_DIR)/kustomize/apps.yaml
+
+lint-kube: render ## Lint rendered manifests for known-bad configs (kube-linter). Needs helm, yq, kustomize, kube-linter.
+	kube-linter lint $(RENDERED_DIR) --config .kube-linter.yaml
 
 
 ##@ General

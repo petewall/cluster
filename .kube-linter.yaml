@@ -1,0 +1,14 @@
+---
+# kube-linter configuration. The built-in default checks run unless excluded
+# here. Upstream charts (istio, cert-manager, k8s-monitoring, ...) often trip
+# checks you can't fix; silence the noisy ones by listing their names under
+# checks.exclude, e.g.:
+#
+#   exclude:
+#     - "unset-cpu-requirements"
+#     - "unset-memory-requirements"
+#     - "no-read-only-root-fs"
+#
+# Check names: https://docs.kubelinter.io/#/generated/checks
+checks:
+  exclude: []

@@ -1,0 +1,58 @@
+---
+name: lint
+
+"on":
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write  # upload SARIF to the code-scanning / Security tab
+
+jobs:
+  kube-linter:
+    name: kube-linter (report-only)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Install yq, kustomize, kube-linter
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/bin"
+          curl -sfL https://github.com/mikefarah/yq/releases/download/v4.44.6/yq_linux_amd64 \
+            -o "$HOME/bin/yq"
+          chmod +x "$HOME/bin/yq"
+          curl -sfL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.4.3/kustomize_v5.4.3_linux_amd64.tar.gz" \
+            | tar -xz -C "$HOME/bin" kustomize
+          curl -sfL https://github.com/stackrox/kube-linter/releases/download/v0.8.3/kube-linter-linux.tar.gz \
+            | tar -xz -C "$HOME/bin" kube-linter
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+
+      - name: Render HelmReleases to plain manifests
+        run: ./scripts/lint/render-helmreleases.sh rendered/helm
+
+      - name: Build kustomize overlays
+        run: |
+          mkdir -p rendered/kustomize
+          kustomize build infrastructure > rendered/kustomize/infrastructure.yaml
+          kustomize build apps > rendered/kustomize/apps.yaml
+
+      - name: Run kube-linter (report-only)
+        run: |
+          # Surface findings in the log, but never fail the build (report-only).
+          kube-linter lint rendered/ --config .kube-linter.yaml || true
+          kube-linter lint rendered/ --config .kube-linter.yaml --format=sarif > kube-linter.sarif || true
+
+      - name: Upload kube-linter SARIF
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: kube-linter.sarif
+          category: kube-linter

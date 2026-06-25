@@ -2,6 +2,7 @@ extends: default
 
 ignore:
   - kubeconfig.yaml
-  
+  - rendered/
+
 rules:
   line-length: disable
