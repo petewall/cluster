@@ -14,22 +14,32 @@ spec:
       labels:
         app: petewall-net
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
       containers:
         - name: nginx
           image: ghcr.io/petewall/petewall.net:2026.6.12  # {"$imagepolicy": "flux-system:petewall-net"}
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           ports:
-            - containerPort: 80
+            - containerPort: 8080
               name: http
           readinessProbe:
             httpGet:
               path: /healthz
-              port: 80
+              port: http
             initialDelaySeconds: 2
             periodSeconds: 5
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 80
+              port: http
             initialDelaySeconds: 5
             periodSeconds: 10
           resources:
@@ -38,3 +48,13 @@ spec:
               memory: 16Mi
             limits:
               memory: 64Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: nginx-cache
+          emptyDir: {}
