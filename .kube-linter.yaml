@@ -11,4 +11,20 @@
 #
 # Check names: https://docs.kubelinter.io/#/generated/checks
 checks:
-  exclude: []
+  exclude:
+    # Host-access checks that ONLY the CSI driver (csi-driver-nfs) and the
+    # node-exporter DaemonSet (k8s-monitoring) trigger. These are inherent to
+    # those privileged system components, not misconfigurations:
+    #   - csi-driver-nfs: mounts NFS volumes on the host, must be privileged
+    #     and share the host network.
+    #   - node-exporter: reads host metrics, so it needs hostPID, hostNetwork
+    #     and read-only mounts of /proc, /sys and /.
+    # Nothing else in the cluster legitimately trips these, so excluding them
+    # globally loses no meaningful coverage. Checks shared with workloads we do
+    # want to harden (run-as-non-root, no-read-only-root-fs, liveness-port,
+    # unset-*-requirements) are deliberately NOT excluded here.
+    - "privileged-container"          # csi-driver-nfs
+    - "privilege-escalation-container" # csi-driver-nfs
+    - "host-network"                  # csi-driver-nfs + node-exporter
+    - "host-pid"                      # node-exporter
+    - "sensitive-host-mounts"         # node-exporter

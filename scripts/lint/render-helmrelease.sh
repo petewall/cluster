@@ -42,11 +42,33 @@ while IFS= read -r idx; do
   values="$(mktemp)"
   yq -N "select(document_index==$idx) | .spec.values // {}" "$SRC" >"$values"
   echo "Rendering $name (chart=$chart, version=${version:-latest}, repo=$url)" >&2
+
+  rendered="$(mktemp)"
   helm template "$name" "$chart" \
     --repo "$url" \
     ${version:+--version "$version"} \
     --namespace "$ns" \
     --include-crds \
-    --values "$values" >>"$OUT"
+    --values "$values" >"$rendered"
   rm -f "$values"
+
+  # Apply any Flux kustomize postRenderers so the linter sees the same patched
+  # manifests Flux applies to the cluster (e.g. ignore-check annotations on
+  # workloads from charts that expose no annotation values, like csi-driver-nfs).
+  release="$(mktemp)"
+  yq -N "select(document_index==$idx)" "$SRC" >"$release"
+  npatches="$(yq -N '[.spec.postRenderers[].kustomize.patches[]] | length' "$release")"
+  if [ "${npatches:-0}" -gt 0 ]; then
+    kdir="$(mktemp -d)"
+    cp "$rendered" "$kdir/resources.yaml"
+    yq -N -o yaml \
+      '{"resources": ["resources.yaml"], "patches": [.spec.postRenderers[].kustomize.patches[]]}' \
+      "$release" >"$kdir/kustomization.yaml"
+    kustomize build "$kdir" >>"$OUT"
+    rm -rf "$kdir"
+  else
+    cat "$rendered" >>"$OUT"
+  fi
+  rm -f "$release"
+  rm -f "$rendered"
 done < <(yq -N 'select(.kind=="HelmRelease") | document_index' "$SRC")
