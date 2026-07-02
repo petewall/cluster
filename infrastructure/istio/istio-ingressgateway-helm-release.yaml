@@ -33,3 +33,22 @@ spec:
           port: 443
           protocol: TCP
           targetPort: 443
+  # The gateway chart relies on Istio sidecar injection: the proxy image is the
+  # sentinel "auto" (the injector rewrites it to a pinned istio/proxyv2:<ver> at
+  # admission), and it sets net.ipv4.ip_unprivileged_port_start so the non-root
+  # proxy can bind 80/443. Both are inherent to the gateway and only visible to
+  # the linter (which never runs the injector), so mark them accepted.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: istio-ingressgateway
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: istio-ingressgateway
+                annotations:
+                  ignore-check.kube-linter.io/latest-tag: "proxy image is 'auto'; the injector rewrites it to a pinned istio/proxyv2 tag"
+                  ignore-check.kube-linter.io/unsafe-sysctls: "ip_unprivileged_port_start lets the non-root proxy bind 80/443"
