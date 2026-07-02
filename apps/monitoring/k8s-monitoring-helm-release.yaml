@@ -91,6 +91,14 @@ spec:
     telemetryServices:
       kube-state-metrics:
         deploy: true
+        # Passed through to the kube-state-metrics subchart. Sized to observed
+        # ~32Mi/4m peak; memory limit for headroom, no CPU limit.
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
       node-exporter:
         deploy: true
         # Passed through to the prometheus-node-exporter subchart; satisfies
@@ -101,6 +109,16 @@ spec:
             memory: 32Mi
           limits:
             memory: 64Mi
+
+    alloy-operator:
+      # Passed through to the alloy-operator subchart. Sized to observed
+      # ~53Mi/11m peak; memory limit for headroom, no CPU limit.
+      resources:
+        requests:
+          cpu: 15m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
 
     collectors:
       alloy:

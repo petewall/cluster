@@ -35,7 +35,7 @@ spec:
             secretKeyRef:
               key: api-server
               name: synthetic-monitoring-api
-        image: grafana/synthetic-monitoring-agent:v0.53.0
+        image: grafana/synthetic-monitoring-agent:v0.60.0
         name: agent
         ports:
         - containerPort: 4050
@@ -51,8 +51,10 @@ spec:
           runAsUser: 12345
         resources:
           requests:
-            cpu: 200m
-            memory: 500Mi
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 64Mi
         volumeMounts:
         - name: tmp
           subPath: tmp

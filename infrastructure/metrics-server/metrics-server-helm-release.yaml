@@ -28,3 +28,11 @@ spec:
       # so skip verifying it. (Preferred address types already default to
       # InternalIP,ExternalIP,Hostname.)
       - --kubelet-insecure-tls
+    # Keep the chart's default requests (memory scales with pod/node count);
+    # add a memory limit for headroom. No CPU limit (cluster convention).
+    resources:
+      requests:
+        cpu: 100m
+        memory: 200Mi
+      limits:
+        memory: 400Mi

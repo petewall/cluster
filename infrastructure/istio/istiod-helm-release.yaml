@@ -21,3 +21,6 @@ spec:
         requests:
           cpu: 100m
           memory: 256Mi
+        # Peak is ~58Mi; limit well above the request for headroom. No CPU limit.
+        limits:
+          memory: 512Mi

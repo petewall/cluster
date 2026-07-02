@@ -23,6 +23,15 @@ spec:
         - name: agent
           #@overlay/replace
           image: #@ "grafana/synthetic-monitoring-agent:" + data.values.version
+          #@ # Upstream requests 200m/500Mi for enterprise-scale probing; this
+          #@ # instance only pings internal devices and sits at a steady ~10Mi/0.5m.
+          #@overlay/replace
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
           env:
             #@overlay/match by=overlay.subset({"name": "API_TOKEN"})
             - name: API_TOKEN

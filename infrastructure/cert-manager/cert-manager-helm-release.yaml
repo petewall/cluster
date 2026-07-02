@@ -28,3 +28,32 @@ spec:
     crds: CreateReplace
   values:
     installCRDs: true
+    # Requests sized to observed 7-day peaks; memory limits give leak/OOM
+    # headroom. No CPU limit (avoids throttling), matching the cluster convention.
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
+    webhook:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
+    cainjector:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
+    startupapicheck:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
