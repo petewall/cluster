@@ -39,7 +39,7 @@ synthetic-monitoring-agent-deployment.yaml: overlays/synthetic-monitoring-agent-
 PDC_CLUSTER = $(shell op read --account my.1password.com "op://Lab/Grafana Cloud PDC Access Policy Token/cluster")
 PDC_USERNAME = $(shell op read --account my.1password.com "op://Lab/Grafana Cloud PDC Access Policy Token/username")
 PDC_TOKEN = $(shell op read --account my.1password.com "op://Lab/Grafana Cloud PDC Access Policy Token/password")
-PDC_VERSION = $(shell curl -s https://api.github.com/repos/grafana/pdc-agent/releases/latest | jq -r '.tag_name')
+PDC_VERSION = $(shell curl -s https://api.github.com/repos/grafana/pdc-agent/releases/latest | jq -r '.tag_name' | sed 's/^v//')
 pdc-agent-secret.yaml:
 	kubectl create secret generic grafana-pdc-agent \
 		--namespace monitoring \
@@ -52,8 +52,7 @@ pdc-agent-secret.yaml:
 pdc-agent-deployment.yaml: overlays/pdc-agent-deployment-mods.yaml
 	set -o pipefail; \
 	curl -fsSL https://raw.githubusercontent.com/grafana/pdc-agent/main/production/kubernetes/pdc-agent-deployment.yaml | \
-			ytt -f - -f $< > $@
-# 			ytt -f - -f $< --data-value version=$(PDC_VERSION) > $@
+			ytt -f - -f $< --data-value version=$(PDC_VERSION) > $@
 
 ##@ Kubernetes Monitoring Helm chart
 k8s-monitoring-helm-values.yaml: k8s-monitoring-helm-release.yaml

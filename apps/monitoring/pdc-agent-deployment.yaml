@@ -48,7 +48,9 @@ spec:
         - $(HOSTED_GRAFANA_ID)
         - -ssh-flag
         - -o PermitRemoteOpen=*.ironwall.svc.cluster.local:5432
-        image: grafana/pdc-agent:latest
+        - -ssh-key-file
+        - /data/grafana_pdc
+        image: grafana/pdc-agent:0.0.61
         imagePullPolicy: Always
         resources:
           limits:
@@ -63,7 +65,14 @@ spec:
           capabilities:
             drop:
             - all
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: ssh
+          mountPath: /data
       securityContext:
         runAsUser: 30000
         runAsGroup: 30000
         fsGroup: 30000
+      volumes:
+      - name: ssh
+        emptyDir: {}

@@ -1,4 +1,5 @@
 #@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
 #@overlay/match by=overlay.subset({"kind": "Deployment"})
 ---
 metadata:
@@ -10,8 +11,28 @@ spec:
       containers:
         #@overlay/match by="name"
         - name: grafana-pdc-agent
+          #@overlay/replace
+          image: #@ "grafana/pdc-agent:" + data.values.version
+          securityContext:
+            #@overlay/match missing_ok=True
+            readOnlyRootFilesystem: true
+          #@overlay/match missing_ok=True
+          volumeMounts:
+            - name: ssh
+              mountPath: /data
           args:
             #@overlay/append
             - -ssh-flag
             #@overlay/append
             - -o PermitRemoteOpen=*.ironwall.svc.cluster.local:5432
+            #@ # a read-only root filesystem forces the SSH keys, cert and
+            #@ # known_hosts (derived from the key file's directory) onto the
+            #@ # writable emptyDir mounted at /data.
+            #@overlay/append
+            - -ssh-key-file
+            #@overlay/append
+            - /data/grafana_pdc
+      #@overlay/match missing_ok=True
+      volumes:
+        - name: ssh
+          emptyDir: {}
