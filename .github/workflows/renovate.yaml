@@ -45,8 +45,10 @@ jobs:
       - name: Renovate
         uses: renovatebot/github-action@v46.1.17
         with:
+          # No configurationFile: that input is for a global/self-hosted config
+          # and would require checking out the repo onto the runner. Renovate
+          # reads this repo's own renovate.json5 when it clones it during the run.
           token: ${{ steps.app-token.outputs.token }}
-          configurationFile: renovate.json5
         env:
           RENOVATE_AUTODISCOVER: "false"
           RENOVATE_REPOSITORIES: ${{ github.repository }}
