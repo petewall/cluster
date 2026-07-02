@@ -27,12 +27,20 @@ mkdir -p "$(dirname "$OUT")"
 
 while IFS= read -r idx; do
   [ -n "$idx" ] || continue
-  name=$(yq -N "select(document_index==$idx) | .metadata.name" "$SRC")
-  ns=$(yq -N "select(document_index==$idx) | .metadata.namespace" "$SRC")
-  chart=$(yq -N "select(document_index==$idx) | .spec.chart.spec.chart" "$SRC")
-  version=$(yq -N "select(document_index==$idx) | .spec.chart.spec.version // \"\"" "$SRC")
-  srcname=$(yq -N "select(document_index==$idx) | .spec.chart.spec.sourceRef.name" "$SRC")
-  srcns=$(yq -N "select(document_index==$idx) | .spec.chart.spec.sourceRef.namespace // \"$ns\"" "$SRC")
+  # Extract just this HelmRelease document to its own file and query that.
+  # Querying a single-document file avoids a yq quirk (seen on v4.44.x) where
+  # `select(document_index==N) | .x // "default"` also emits the fallback for
+  # the filtered-out documents, duplicating the value (e.g. srcns became
+  # "monitoring\nmonitoring", breaking the HelmRepository URL lookup).
+  release="$(mktemp)"
+  yq -N "select(document_index==$idx)" "$SRC" >"$release"
+
+  name=$(yq -N '.metadata.name' "$release")
+  ns=$(yq -N '.metadata.namespace' "$release")
+  chart=$(yq -N '.spec.chart.spec.chart' "$release")
+  version=$(yq -N '.spec.chart.spec.version // ""' "$release")
+  srcname=$(yq -N '.spec.chart.spec.sourceRef.name' "$release")
+  srcns=$(yq -N ".spec.chart.spec.sourceRef.namespace // \"$ns\"" "$release")
   url="${REPO_URL[$srcns/$srcname]:-}"
   if [ -z "$url" ]; then
     echo "ERROR: no HelmRepository URL for $name (sourceRef $srcns/$srcname) referenced by $SRC" >&2
@@ -40,7 +48,7 @@ while IFS= read -r idx; do
   fi
 
   values="$(mktemp)"
-  yq -N "select(document_index==$idx) | .spec.values // {}" "$SRC" >"$values"
+  yq -N '.spec.values // {}' "$release" >"$values"
   echo "Rendering $name (chart=$chart, version=${version:-latest}, repo=$url)" >&2
 
   rendered="$(mktemp)"
@@ -55,8 +63,6 @@ while IFS= read -r idx; do
   # Apply any Flux kustomize postRenderers so the linter sees the same patched
   # manifests Flux applies to the cluster (e.g. ignore-check annotations on
   # workloads from charts that expose no annotation values, like csi-driver-nfs).
-  release="$(mktemp)"
-  yq -N "select(document_index==$idx)" "$SRC" >"$release"
   npatches="$(yq -N '[.spec.postRenderers[].kustomize.patches[]] | length' "$release")"
   if [ "${npatches:-0}" -gt 0 ]; then
     kdir="$(mktemp -d)"
