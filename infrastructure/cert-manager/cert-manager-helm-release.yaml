@@ -57,3 +57,7 @@ spec:
           memory: 32Mi
         limits:
           memory: 64Mi
+      # One-shot post-install hook Job that Helm removes via its hook-delete
+      # policy, so ttlSecondsAfterFinished adds nothing here.
+      jobAnnotations:
+        ignore-check.kube-linter.io/job-ttl-seconds-after-finished: "one-shot Helm hook Job; cleaned up by Helm's hook-delete-policy"
