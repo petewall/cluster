@@ -24,7 +24,7 @@ checks:
     # want to harden (run-as-non-root, no-read-only-root-fs, liveness-port,
     # unset-*-requirements) are deliberately NOT excluded here.
     - "privileged-container"          # csi-driver-nfs
-    - "privilege-escalation-container" # csi-driver-nfs
+    - "privilege-escalation-container"  # csi-driver-nfs
     - "host-network"                  # csi-driver-nfs + node-exporter
     - "host-pid"                      # node-exporter
     - "sensitive-host-mounts"         # node-exporter

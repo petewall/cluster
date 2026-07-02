@@ -3,3 +3,5 @@ sealed-secrets.cert
 .vscode/
 .temp/
 *.sarif
+apps/monitoring/k8s-monitoring-helm-output.yaml
+apps/monitoring/k8s-monitoring-helm-values.yaml

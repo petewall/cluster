@@ -3,6 +3,16 @@ extends: default
 ignore:
   - kubeconfig.yaml
   - .temp/
+  # Installed by `flux bootstrap`, not hand-authored.
+  - cluster/flux-system/
+  # ytt overlay templates: `#@` annotations are ytt syntax, not plain-YAML comments.
+  - apps/monitoring/overlays/
+  # Generated from upstream manifests + ytt overlays (see apps/monitoring/Makefile).
+  - apps/monitoring/pdc-agent-deployment.yaml
+  - apps/monitoring/synthetic-monitoring-agent-deployment.yaml
+  # `helm template` / HelmRelease-extract build artifacts (untracked).
+  - apps/monitoring/k8s-monitoring-helm-output.yaml
+  - apps/monitoring/k8s-monitoring-helm-values.yaml
 
 rules:
   line-length: disable

@@ -17,7 +17,7 @@ spec:
   imageRepositoryRef:
     name: petewall-net
   filterTags:
-    pattern: '^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}$' # only YYYY.M.D tags; ignore latest/sha
+    pattern: '^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}$'  # only YYYY.M.D tags; ignore latest/sha
   policy:
     semver:
       range: '>=0.0.0'
