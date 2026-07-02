@@ -35,12 +35,11 @@ jobs:
       - name: Render HelmReleases to plain manifests
         run: make render
 
-      - name: Run kube-linter (report-only)
+      - name: Run kube-linter
         run: |
           # Surface findings in the log, but never fail the build (report-only).
-          kube-linter lint .temp/rendered --config .kube-linter.yaml || true
-          kube-linter lint .temp/rendered --config .kube-linter.yaml --format=sarif \
-            > .temp/kube-linter.sarif || true
+          make lint-kube || true
+          make .temp/kube-linter.sarif || true
 
       - name: Upload kube-linter SARIF
         if: always()

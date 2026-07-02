@@ -63,6 +63,9 @@ $(foreach hr,$(HELMRELEASES),$(eval $(call render_rule,$(hr))))
 lint-kube: $(RENDERED_HELMRELEASES) .temp/rendered/infrastructure.yaml .temp/rendered/apps.yaml ## Lint rendered manifests for known-bad configs (kube-linter).
 	kube-linter lint .temp/rendered --config .kube-linter.yaml
 
+.temp/kube-linter.sarif: $(RENDERED_HELMRELEASES) .temp/rendered/infrastructure.yaml .temp/rendered/apps.yaml
+	kube-linter lint .temp/rendered --config .kube-linter.yaml --format=sarif > $@
+
 clean: ## Remove generated/temporary files (.temp/).
 	rm -rf .temp
 
