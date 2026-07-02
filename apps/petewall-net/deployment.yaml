@@ -1,4 +1,3 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,7 +19,7 @@ spec:
         runAsGroup: 101
       containers:
         - name: nginx
-          image: ghcr.io/petewall/petewall.net:2026.6.12  # {"$imagepolicy": "flux-system:petewall-net"}
+          image: ghcr.io/petewall/petewall.net:2026.6.25 # {"$imagepolicy": "flux-system:petewall-net"}
           securityContext:
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
