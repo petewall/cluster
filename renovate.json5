@@ -1,0 +1,26 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["config:recommended"],
+
+  // Flux image-automation owns the petewall.net app image — it commits tag
+  // bumps straight to git (no PRs), which is what we want for that app. Keep
+  // Renovate out of it so the two don't fight over the tag. Everything else
+  // (Flux HelmRelease chart versions + GitHub Actions) comes through Renovate PRs.
+  packageRules: [
+    {
+      matchPackageNames: ["ghcr.io/petewall/petewall.net"],
+      enabled: false,
+    },
+    {
+      // istio base/istiod/gateway are released and versioned in lockstep, so
+      // group them into a single PR. kiali-server stays on its own.
+      matchDatasources: ["helm"],
+      matchPackageNames: ["base", "istiod", "gateway"],
+      groupName: "istio",
+    },
+  ],
+
+  // Keep PR volume sane for a homelab.
+  prConcurrentLimit: 5,
+  prHourlyLimit: 2,
+}

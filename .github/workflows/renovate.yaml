@@ -1,0 +1,61 @@
+---
+name: renovate
+
+"on":
+  schedule:
+    - cron: "0 6 * * 1"  # Mondays 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        description: "Dry run: log proposed changes without opening PRs"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# Never run two Renovate jobs against the repo at once.
+concurrency:
+  group: renovate
+  cancel-in-progress: false
+
+jobs:
+  renovate:
+    name: renovate
+    runs-on: ubuntu-latest
+    steps:
+      # Mint a short-lived installation token for the Renovate GitHub App,
+      # scoped to this repo. App ID + private key live in Actions secrets.
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.RENOVATE_APP_ID }}
+          private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
+
+      # Resolve the app's bot user id so commits are attributed to it correctly.
+      - name: Resolve bot user id
+        id: bot
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SLUG: ${{ steps.app-token.outputs.app-slug }}
+        run: |
+          echo "user-id=$(gh api "/users/${SLUG}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+
+      - name: Renovate
+        uses: renovatebot/github-action@v40
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          configurationFile: renovate.json5
+        env:
+          RENOVATE_AUTODISCOVER: "false"
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          # App installation tokens can't call GET /user, so tell Renovate who
+          # it is (used to recognise its own PRs) and how to author commits.
+          RENOVATE_USERNAME: ${{ steps.app-token.outputs.app-slug }}[bot]
+          RENOVATE_GIT_AUTHOR: >-
+            ${{ steps.app-token.outputs.app-slug }}[bot]
+            <${{ steps.bot.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com>
+          # workflow_dispatch with dryRun=true → full dry run, no PRs/commits.
+          RENOVATE_DRY_RUN: ${{ inputs.dryRun && 'full' || '' }}
+          LOG_LEVEL: info
