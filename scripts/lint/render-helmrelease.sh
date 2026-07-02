@@ -15,11 +15,16 @@ OUT="$2"
 cd "$(dirname "${BASH_SOURCE[0]}")/../.." # repo root
 
 # Map "<namespace>/<name>" -> chart repo URL for every HelmRepository object.
+# Emit one tab-separated record per document (kind, namespace, name, url) and
+# filter in the shell. This avoids `select(...) | a + "/" + b` forms, which
+# behave inconsistently across yq versions — on v4.44.x they leaked the
+# filtered-out documents and erred on the null .spec.url of the HelmRelease,
+# leaving the map empty.
 declare -A REPO_URL
 while IFS= read -r f; do
-  while IFS=$'\t' read -r key url; do
-    [ -n "$key" ] && REPO_URL["$key"]="$url"
-  done < <(yq -N 'select(.kind=="HelmRepository") | (.metadata.namespace + "/" + .metadata.name) + "\t" + .spec.url' "$f")
+  while IFS=$'\t' read -r kind ns name url; do
+    [ "$kind" = "HelmRepository" ] && [ -n "$name" ] && REPO_URL["$ns/$name"]="$url"
+  done < <(yq -N '[.kind, .metadata.namespace // "", .metadata.name // "", .spec.url // ""] | @tsv' "$f")
 done < <(git ls-files -z '*.yaml' | xargs -0 grep -lE '^kind: HelmRepository')
 
 mkdir -p "$(dirname "$OUT")"
