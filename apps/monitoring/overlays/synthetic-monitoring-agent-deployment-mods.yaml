@@ -7,6 +7,10 @@ metadata:
   name: synthetic-monitoring-agent
   #@overlay/replace
   namespace: monitoring
+  #@ # NET_RAW is required for the agent's ICMP ping/traceroute probes.
+  #@overlay/match missing_ok=True
+  annotations:
+    ignore-check.kube-linter.io/drop-net-raw-capability: "NET_RAW required for ICMP ping/traceroute probes"
 spec:
   selector:
     matchLabels:

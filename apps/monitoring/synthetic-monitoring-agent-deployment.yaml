@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: synthetic-monitoring-agent
   namespace: monitoring
+  annotations:
+    ignore-check.kube-linter.io/drop-net-raw-capability: NET_RAW required for ICMP ping/traceroute probes
 spec:
   minReadySeconds: 10
   replicas: 1
