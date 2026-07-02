@@ -34,7 +34,7 @@ jobs:
 
       - name: Upload kube-linter SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: .temp/kube-linter.sarif
           category: kube-linter
