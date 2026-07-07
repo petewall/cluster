@@ -43,3 +43,5 @@ spec:
               value: petewall.net,home.petewall.net
             - name: PROXIED
               value: "false"
+            - name: IP6_PROVIDER
+              value: none
