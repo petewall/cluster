@@ -31,7 +31,9 @@
     managerFilePatterns: ["/(^|/)(apps|infrastructure)/.+\\.ya?ml$/"],
   },
 
-  // Keep PR volume sane for a homelab.
-  prConcurrentLimit: 5,
-  prHourlyLimit: 2,
+  // Surface every available update on every run. 0 = unlimited (removing these
+  // keys would fall back to Renovate's defaults of 10 concurrent / 2 per hour,
+  // not unlimited). Renovate only runs weekly, so there's no flood risk.
+  prConcurrentLimit: 0,
+  prHourlyLimit: 0,
 }
