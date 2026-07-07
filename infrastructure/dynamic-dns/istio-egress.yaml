@@ -1,0 +1,43 @@
+---
+# The only external service dynamic-dns needs: Cloudflare's API
+# (IP detection via /cdn-cgi/trace AND DNS record updates both go here).
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: cloudflare-api
+  namespace: dynamic-dns
+spec:
+  hosts:
+    - api.cloudflare.com
+  ports:
+    - number: 443
+      name: tls
+      protocol: TLS # app-originated TLS; envoy routes by SNI
+  location: MESH_EXTERNAL
+  resolution: DNS
+  exportTo: ["."]
+---
+# Scope deny-by-default egress to just this namespace. Globally the mesh is
+# ALLOW_ANY, so this only affects dynamic-dns: anything not in the registry
+# (i.e. not the Cloudflare ServiceEntry / in-cluster services) is blackholed.
+apiVersion: networking.istio.io/v1
+kind: Sidecar
+metadata:
+  name: default
+  namespace: dynamic-dns
+spec:
+  outboundTrafficPolicy:
+    mode: REGISTRY_ONLY
+  egress:
+    - hosts:
+        - "./*" # own ns + the Cloudflare ServiceEntry
+        - "istio-system/*" # control plane
+        - "kube-system/*" # CoreDNS
+---
+# dynamic-dns serves no inbound traffic — deny all requests to it.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all-inbound
+  namespace: dynamic-dns
+spec: {}

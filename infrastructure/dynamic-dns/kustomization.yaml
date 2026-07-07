@@ -5,3 +5,4 @@ resources:
   - namespace.yaml
   - cloudflare-secret.yaml
   - dynamic-dns.yaml
+  - istio-egress.yaml
