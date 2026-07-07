@@ -1,4 +1,14 @@
 ---
+# Require mTLS for any inbound (complements deny-all-inbound below).
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: dynamic-dns
+spec:
+  mtls:
+    mode: STRICT
+---
 # The only external service dynamic-dns needs: Cloudflare's API
 # (IP detection via /cdn-cgi/trace AND DNS record updates both go here).
 apiVersion: networking.istio.io/v1

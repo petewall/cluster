@@ -1,0 +1,41 @@
+---
+# Require mTLS for all inbound traffic to petewall-net.
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: petewall-net
+spec:
+  mtls:
+    mode: STRICT
+---
+# Only the istio ingress gateway may reach the site. Any other (lateral)
+# source is denied. Kubelet probes are auto-exempted by istio's probe rewrite.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-ingressgateway
+  namespace: petewall-net
+spec:
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/istio-system/sa/istio-ingressgateway
+---
+# Static site makes no external calls, so lock egress to the registry only
+# (in-cluster + control plane). No external ServiceEntry by design.
+apiVersion: networking.istio.io/v1
+kind: Sidecar
+metadata:
+  name: default
+  namespace: petewall-net
+spec:
+  outboundTrafficPolicy:
+    mode: REGISTRY_ONLY
+  egress:
+    - hosts:
+        - "./*" # own namespace
+        - "istio-system/*" # control plane
+        - "kube-system/*" # CoreDNS

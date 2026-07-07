@@ -7,3 +7,4 @@ resources:
   - service.yaml
   - virtual-service.yaml
   - image-automation.yaml
+  - istio-security.yaml
