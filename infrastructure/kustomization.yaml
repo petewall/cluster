@@ -6,6 +6,5 @@ resources:
   - cert-manager
   - dynamic-dns
   - istio
-  - kubeai
   - metrics-server
   - storage
