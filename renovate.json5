@@ -20,6 +20,17 @@
     },
   ],
 
+  // HelmReleases and raw manifests live under apps/ and infrastructure/, not
+  // under a flux/ dir, so the flux manager's default pattern misses them. The
+  // kubernetes manager is off by default; enable it for raw image refs (e.g.
+  // the dynamic-dns Deployment).
+  flux: {
+    managerFilePatterns: ["/(^|/)(apps|infrastructure)/.+\\.ya?ml$/"],
+  },
+  kubernetes: {
+    managerFilePatterns: ["/(^|/)(apps|infrastructure)/.+\\.ya?ml$/"],
+  },
+
   // Keep PR volume sane for a homelab.
   prConcurrentLimit: 5,
   prHourlyLimit: 2,
