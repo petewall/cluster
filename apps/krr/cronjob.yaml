@@ -1,0 +1,65 @@
+---
+# Weekly right-sizing pass. Reads usage from Grafana Cloud Prometheus and prints
+# requests/limits recommendations to the job log (kubectl logs). Report-only —
+# it never applies anything.
+#
+# suspend: true until the krr-prometheus sealed secret exists (see Makefile +
+# README steps). Flip to false once the secret is committed.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: krr
+  namespace: krr
+spec:
+  schedule: "0 8 * * 1" # Mondays 08:00 UTC (after Renovate at 06:00)
+  suspend: true
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          serviceAccountName: krr
+          restartPolicy: Never
+          containers:
+            - name: krr
+              image: robustadev/krr:v1.28.0
+              env:
+                - name: PROM_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: krr-prometheus
+                      key: url
+                - name: PROM_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: krr-prometheus
+                      key: user
+                - name: PROM_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: krr-prometheus
+                      key: token
+              command:
+                - /bin/sh
+                - -c
+                - >
+                  python krr.py simple
+                  -p "${PROM_URL}"
+                  --prometheus-auth-header "Bearer ${PROM_USER}:${PROM_TOKEN}"
+                  --prometheus-ssl-enabled
+                  --max-workers 3 --width 2048
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+                seccompProfile:
+                  type: RuntimeDefault
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  memory: 1Gi
