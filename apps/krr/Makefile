@@ -7,9 +7,9 @@ all: prometheus-secret.yaml
 # Reuses the metrics instance + endpoint, but a SEPARATE access token scoped
 # metrics:read (the alloy push token can't query). Create that token in the
 # Grafana Cloud portal (Access Policies) and store it in 1Password first.
-PROM_URL = $(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics/website")./api/prom
-PROM_USER = $(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics/username")
-PROM_TOKEN = $(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics Read Token/password")
+PROM_URL = $(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics Read/website")./api/prom
+PROM_USER = $(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics Read/username")
+PROM_TOKEN = $(shell op read --account my.1password.com "op://Lab/Grafana Cloud Metrics Read/password")
 
 prometheus-secret.yaml:
 	kubectl create secret generic krr-prometheus \

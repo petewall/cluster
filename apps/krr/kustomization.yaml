@@ -5,4 +5,4 @@ resources:
   - namespace.yaml
   - rbac.yaml
   - cronjob.yaml
-  # - prometheus-secret.yaml  # uncomment after `make` seals the read token
+  - prometheus-secret.yaml
