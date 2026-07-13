@@ -43,7 +43,7 @@ jobs:
           echo "user-id=$(gh api "/users/${SLUG}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
 
       - name: Renovate
-        uses: renovatebot/github-action@v46.1.18
+        uses: renovatebot/github-action@v46.1.19
         with:
           # No configurationFile: that input is for a global/self-hosted config
           # and would require checking out the repo onto the runner. Renovate
