@@ -20,7 +20,7 @@ spec:
         runAsGroup: 1000
       containers:
         - name: dynamic-dns
-          image: favonia/cloudflare-ddns:1.15.1
+          image: favonia/cloudflare-ddns:1.16.2
           securityContext:
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
