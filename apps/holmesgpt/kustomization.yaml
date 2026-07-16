@@ -4,4 +4,9 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - holmes-helm-release.yaml
-  - scheduledhealthcheck.yaml
+  # scheduledhealthcheck.yaml is intentionally NOT applied here yet: its CRD
+  # (scheduledhealthchecks.holmesgpt.dev) is installed by the Holmes operator
+  # in the HelmRelease above, so the CR can't apply in the same reconcile that
+  # creates the CRD. Add it back once the operator is running and the CRD
+  # exists (kubectl get crd | grep holmesgpt).
+  # - scheduledhealthcheck.yaml
