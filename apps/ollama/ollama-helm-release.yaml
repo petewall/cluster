@@ -27,6 +27,11 @@ spec:
     fullnameOverride: ollama
     replicaCount: 1
 
+    # The chart's helm-test Pod is an unhardened busybox image (trips
+    # kube-linter and never runs under Flux anyway).
+    tests:
+      enabled: false
+
     ollama:
       gpu:
         enabled: false
