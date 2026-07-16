@@ -3,7 +3,10 @@
     "allow": [
       "Bash(kubectl get:*)",
       "Bash(kubectl logs:*)",
-      "WebFetch(domain:www.kubeai.org)"
+      "Bash(kubectl rollout *)",
+      "Bash(kubectl describe *)",
+      "Bash(make lint *)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

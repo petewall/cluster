@@ -36,6 +36,6 @@ spec:
     mode: REGISTRY_ONLY
   egress:
     - hosts:
-        - "./*" # own namespace
-        - "istio-system/*" # control plane
-        - "kube-system/*" # CoreDNS
+        - "./*"  # own namespace
+        - "istio-system/*"  # control plane
+        - "kube-system/*"  # CoreDNS

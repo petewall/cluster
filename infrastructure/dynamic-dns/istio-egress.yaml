@@ -22,7 +22,7 @@ spec:
   ports:
     - number: 443
       name: tls
-      protocol: TLS # app-originated TLS; envoy routes by SNI
+      protocol: TLS  # app-originated TLS; envoy routes by SNI
   location: MESH_EXTERNAL
   resolution: DNS
   exportTo: ["."]
@@ -40,9 +40,9 @@ spec:
     mode: REGISTRY_ONLY
   egress:
     - hosts:
-        - "./*" # own ns + the Cloudflare ServiceEntry
-        - "istio-system/*" # control plane
-        - "kube-system/*" # CoreDNS
+        - "./*"  # own ns + the Cloudflare ServiceEntry
+        - "istio-system/*"  # control plane
+        - "kube-system/*"  # CoreDNS
 ---
 # dynamic-dns serves no inbound traffic — deny all requests to it.
 apiVersion: security.istio.io/v1

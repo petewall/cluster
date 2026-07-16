@@ -11,7 +11,7 @@ metadata:
   name: krr
   namespace: krr
 spec:
-  schedule: "0 8 * * 1" # Mondays 08:00 UTC (after Renovate at 06:00)
+  schedule: "0 8 * * 1"  # Mondays 08:00 UTC (after Renovate at 06:00)
   suspend: false
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
