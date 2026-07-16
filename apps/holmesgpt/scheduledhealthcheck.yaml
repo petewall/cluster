@@ -1,0 +1,26 @@
+---
+# First workload for the self-hosted LLM: a recurring, natural-language cluster
+# health check. mode: monitor stores results on the CR / in the operator logs
+# and delivers nothing externally — it validates the whole
+# Ollama -> Holmes -> check pipeline on CPU before we wire up alert delivery.
+#
+# NOTE: the CRD is installed by the Holmes operator (operator.enabled). On the
+# very first reconcile this resource may fail to apply until the CRD is
+# established; Flux retries and it settles within a cycle or two.
+apiVersion: holmesgpt.dev/v1alpha1
+kind: ScheduledHealthCheck
+metadata:
+  name: cluster-health
+  namespace: holmesgpt
+spec:
+  # Hourly to start — CPU inference is slow and each run makes several LLM
+  # calls. Tighten once we know how long a run actually takes.
+  schedule: "0 * * * *"
+  query: >-
+    Are all pods across the cluster healthy? Check for pods that are not
+    Running or Ready, containers stuck in CrashLoopBackOff, Pending, or
+    ContainerCreating, recent restarts, and any resource pressure. Summarize
+    anything that looks wrong.
+  timeout: 300
+  mode: monitor
+  model: qwen
