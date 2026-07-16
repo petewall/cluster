@@ -15,6 +15,16 @@ metadata:
   namespace: ollama
 spec:
   interval: 1h0m0s
+  # First boot pulls a ~4.7Gi model over NFS before the Deployment goes Ready;
+  # give Helm room past its 5m default so the install isn't marked Failed while
+  # the pull is still in flight. Subsequent installs reuse the model on the PVC.
+  timeout: 20m0s
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
   chart:
     spec:
       chart: ollama
