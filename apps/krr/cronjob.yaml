@@ -27,6 +27,9 @@ spec:
             - name: krr
               image: robustadev/krr:v1.28.0
               env:
+                # Read-only root FS: redirect any home/cache writes to /tmp.
+                - name: HOME
+                  value: /tmp
                 - name: PROM_URL
                   valueFrom:
                     secretKeyRef:
@@ -53,6 +56,9 @@ spec:
                   --max-workers 3 --width 2048
               securityContext:
                 allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 1000
                 capabilities:
                   drop: ["ALL"]
                 seccompProfile:
@@ -63,3 +69,9 @@ spec:
                   memory: 256Mi
                 limits:
                   memory: 1Gi
+              volumeMounts:
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: tmp
+              emptyDir: {}
