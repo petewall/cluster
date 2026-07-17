@@ -13,8 +13,11 @@ metadata:
   name: cluster-health
   namespace: holmesgpt
 spec:
-  # Hourly to start — CPU inference is slow and each run makes several LLM
-  # calls. Tighten once we know how long a run actually takes.
+  # DISABLED: on CPU, qwen2.5:7b takes ~4min per completion and never entered
+  # the tool-calling loop — runs "passed" without investigating anything
+  # (hollow passes). Agentic checks need a GPU or a hosted model; parked here
+  # pending that. See llm-roadmap: pivoting Ollama to non-agentic workloads.
+  enabled: false
   schedule: "0 * * * *"
   query: >-
     Are all pods across the cluster healthy? Check for pods that are not
