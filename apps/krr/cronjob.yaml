@@ -1,10 +1,11 @@
 ---
-# Weekly right-sizing pass. Reads usage from Grafana Cloud Prometheus and prints
-# requests/limits recommendations to the job log (kubectl logs). Report-only —
-# it never applies anything.
+# Weekly right-sizing pass. Reads usage from Grafana Cloud Prometheus, filters to
+# significant changes (report.py), has the local Ollama write a plain-English
+# summary of them, and posts the result to an evergreen GitHub issue. Report-only
+# — it never applies anything.
 #
-# suspend: true until the krr-prometheus sealed secret exists (see Makefile +
-# README steps). Flip to false once the secret is committed.
+# The LLM only phrases the already-computed facts; report.py does the math. If
+# Ollama or GitHub is unreachable the job still logs the deterministic table.
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -45,6 +46,31 @@ spec:
                     secretKeyRef:
                       name: krr-prometheus
                       key: token
+                - name: GITHUB_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: krr-github
+                      key: token
+                - name: GITHUB_REPO
+                  value: petewall/cluster
+                - name: ISSUE_TITLE
+                  value: KRR right-sizing recommendations
+                - name: KRR_JSON
+                  value: /tmp/krr.json
+                # Local LLM writes the prose summary (phrasing only).
+                - name: OLLAMA_URL
+                  value: http://ollama.ollama.svc.cluster.local:11434
+                - name: OLLAMA_MODEL
+                  value: qwen2.5:7b-instruct
+                # Significance thresholds — a change must clear BOTH floors.
+                - name: CPU_ABS_FLOOR_M
+                  value: "50"
+                - name: CPU_PCT_FLOOR
+                  value: "25"
+                - name: MEM_ABS_FLOOR_MI
+                  value: "64"
+                - name: MEM_PCT_FLOOR
+                  value: "25"
               command:
                 - /bin/sh
                 - -c
@@ -53,7 +79,9 @@ spec:
                   -p "${PROM_URL}"
                   --prometheus-auth-header "Bearer ${PROM_USER}:${PROM_TOKEN}"
                   --prometheus-ssl-enabled
-                  --max-workers 3 --width 2048
+                  --max-workers 3
+                  -f json --fileoutput /tmp/krr.json --logtostderr
+                  && python3 /scripts/report.py
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
@@ -72,6 +100,13 @@ spec:
               volumeMounts:
                 - name: tmp
                   mountPath: /tmp
+                - name: report-script
+                  mountPath: /scripts
+                  readOnly: true
           volumes:
             - name: tmp
               emptyDir: {}
+            - name: report-script
+              configMap:
+                name: krr-report-script
+                defaultMode: 0555

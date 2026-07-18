@@ -6,3 +6,10 @@ resources:
   - rbac.yaml
   - cronjob.yaml
   - prometheus-secret.yaml
+  # - github-secret.yaml  # uncomment after `make github-secret.yaml`
+configMapGenerator:
+  - name: krr-report-script
+    files:
+      - report.py
+generatorOptions:
+  disableNameSuffixHash: true
