@@ -4,5 +4,4 @@ kind: Kustomization
 resources:
   - krr
   - monitoring
-  - ollama
   - petewall-net
