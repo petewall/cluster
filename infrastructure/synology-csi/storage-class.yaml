@@ -13,3 +13,18 @@ parameters:
 reclaimPolicy: Retain
 allowVolumeExpansion: true
 volumeBindingMode: Immediate
+---
+# File storage over NFS — for RWX / file-share workloads. synology-csi creates a
+# dedicated shared folder per volume via the DSM API (not subdirs under one
+# share, like the old csi-driver-nfs did).
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: synology-nfs
+provisioner: csi.san.synology.com
+parameters:
+  protocol: 'nfs'
+  location: '/volume1'
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+volumeBindingMode: Immediate
