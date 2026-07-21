@@ -7,5 +7,4 @@ resources:
   - dynamic-dns
   - istio
   - metrics-server
-  - storage
   - synology-csi
