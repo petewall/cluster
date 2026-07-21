@@ -8,3 +8,4 @@ resources:
   - istio
   - metrics-server
   - storage
+  - synology-csi

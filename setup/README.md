@@ -29,7 +29,18 @@ These are the steps required to deploy the nodes of the cluster
 sudo apt update
 sudo apt upgrade --yes --fix-missing
 sudo apt autoremove
-sudo apt install fwupd jq net-tools vim
+sudo apt install fwupd jq net-tools vim open-iscsi
+```
+
+  * `open-iscsi` is required on every node for the Synology CSI driver's iSCSI
+    block volumes (`infrastructure/synology-csi/`). The node plugin has no
+    bundled initiator — it uses the host's `iscsiadm`/`iscsid`. Enable the
+    daemon and ensure the kernel module loads on boot:
+
+```bash
+sudo systemctl enable --now iscsid
+echo iscsi_tcp | sudo tee /etc/modules-load.d/iscsi_tcp.conf
+sudo modprobe iscsi_tcp
 ```
 
   * Add id_rsa.pub to ~/.ssh/authorized_keys

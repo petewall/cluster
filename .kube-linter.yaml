@@ -12,19 +12,22 @@
 # Check names: https://docs.kubelinter.io/#/generated/checks
 checks:
   exclude:
-    # Host-access checks that ONLY the CSI driver (csi-driver-nfs) and the
-    # node-exporter DaemonSet (k8s-monitoring) trigger. These are inherent to
-    # those privileged system components, not misconfigurations:
+    # Host-access checks that ONLY the CSI drivers (csi-driver-nfs, synology-csi)
+    # and the node-exporter DaemonSet (k8s-monitoring) trigger. These are
+    # inherent to those privileged system components, not misconfigurations:
     #   - csi-driver-nfs: mounts NFS volumes on the host, must be privileged
     #     and share the host network.
+    #   - synology-csi node plugin: attaches iSCSI devices and mounts into the
+    #     host namespace (chroot to /host), must be privileged + host network.
+    #     (Its controller is de-privileged in the vendored manifests.)
     #   - node-exporter: reads host metrics, so it needs hostPID, hostNetwork
     #     and read-only mounts of /proc, /sys and /.
     # Nothing else in the cluster legitimately trips these, so excluding them
     # globally loses no meaningful coverage. Checks shared with workloads we do
     # want to harden (run-as-non-root, no-read-only-root-fs, liveness-port,
     # unset-*-requirements) are deliberately NOT excluded here.
-    - "privileged-container"          # csi-driver-nfs
-    - "privilege-escalation-container"  # csi-driver-nfs
-    - "host-network"                  # csi-driver-nfs + node-exporter
+    - "privileged-container"          # csi-driver-nfs + synology-csi node
+    - "privilege-escalation-container"  # csi-driver-nfs + synology-csi node
+    - "host-network"                  # csi-driver-nfs + synology-csi + node-exporter
     - "host-pid"                      # node-exporter
     - "sensitive-host-mounts"         # node-exporter

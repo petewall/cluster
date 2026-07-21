@@ -1,0 +1,10 @@
+---
+# Vendored from SynologyOpenSource/synology-csi deploy/kubernetes/v1.20.
+# The node plugin requires privileged (iSCSI attach/mount), so the namespace
+# enforces the privileged Pod Security Standard.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: synology-csi
+  labels:
+    pod-security.kubernetes.io/enforce: privileged

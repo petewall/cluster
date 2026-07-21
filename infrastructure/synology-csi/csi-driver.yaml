@@ -1,0 +1,11 @@
+---
+# Vendored from SynologyOpenSource/synology-csi deploy/kubernetes/v1.20 (unchanged).
+apiVersion: storage.k8s.io/v1
+kind: CSIDriver
+metadata:
+  name: csi.san.synology.com
+spec:
+  attachRequired: true
+  podInfoOnMount: true
+  volumeLifecycleModes:
+    - Persistent
