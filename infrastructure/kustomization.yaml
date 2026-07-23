@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - sealed-secrets
   - cert-manager
+  - database
   - dynamic-dns
   - istio
   - metrics-server
