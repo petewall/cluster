@@ -45,8 +45,8 @@ rules:
   - apiGroups: ["storage.k8s.io"]
     resources: ["storageclasses"]
     verbs: ["get", "list", "watch"]
-  # Removed vs upstream: cluster-wide secrets (get) and snapshot.storage.k8s.io
-  # read rules. Secret access is namespaced in secret-rbac.yaml; no snapshotter.
+# Removed vs upstream: cluster-wide secrets (get) and snapshot.storage.k8s.io
+# read rules. Secret access is namespaced in secret-rbac.yaml; no snapshotter.
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
