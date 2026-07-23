@@ -1,0 +1,11 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - cloudnative-pg-helm-release.yaml
+  - cluster.yaml
+  # Phase 2b — uncomment together once the password secrets are sealed (`make`):
+  # - databases.yaml
+  # - mealie-db-password.yaml
+  # - homeassistant-db-password.yaml

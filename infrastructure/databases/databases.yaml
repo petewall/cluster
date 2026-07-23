@@ -1,0 +1,27 @@
+---
+# Declarative databases. databaseReclaimPolicy: retain (default, but explicit)
+# so removing/renaming this manifest — or an accidental Flux prune — removes only
+# the Kubernetes object, NOT the actual PostgreSQL database and its data.
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: mealie
+  namespace: databases
+spec:
+  cluster:
+    name: postgres
+  name: mealie
+  owner: mealie
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: homeassistant
+  namespace: databases
+spec:
+  cluster:
+    name: postgres
+  name: homeassistant
+  owner: homeassistant
+  databaseReclaimPolicy: retain

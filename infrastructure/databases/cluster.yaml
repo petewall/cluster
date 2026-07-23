@@ -2,12 +2,12 @@
 # Shared PostgreSQL cluster (CloudNativePG) on iSCSI block storage. Hosts the
 # mealie and homeassistant databases (see databases.yaml). Single instance —
 # homelab; if it restarts, dependent apps reconnect. Roles/databases are added
-# declaratively once their password secrets exist.
+# declaratively once their password secrets exist (Phase 2b).
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: postgres
-  namespace: cnpg-system
+  namespace: databases
 spec:
   instances: 1
   imageName: ghcr.io/cloudnative-pg/postgresql:17
