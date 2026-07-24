@@ -20,3 +20,19 @@ spec:
       memory: 512Mi
     limits:
       memory: 2Gi
+  managed:
+    roles:
+      # Passwords come from basic-auth sealed secrets (see Makefile). Each role
+      # owns only its own database (databases.yaml) — no superuser.
+      - name: mealie
+        ensure: present
+        login: true
+        superuser: false
+        passwordSecret:
+          name: mealie-db-password
+      - name: homeassistant
+        ensure: present
+        login: true
+        superuser: false
+        passwordSecret:
+          name: homeassistant-db-password

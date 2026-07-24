@@ -5,7 +5,6 @@ resources:
   - namespace.yaml
   - cloudnative-pg-helm-release.yaml
   - cluster.yaml
-  # Phase 2b — uncomment together once the password secrets are sealed (`make`):
-  # - databases.yaml
-  # - mealie-db-password.yaml
-  # - homeassistant-db-password.yaml
+  - databases.yaml
+  - mealie-db-password.yaml
+  - homeassistant-db-password.yaml
