@@ -1,0 +1,17 @@
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: mealie
+  namespace: mealie
+spec:
+  hosts:
+    - recipes.petewall.net
+  gateways:
+    - istio-system/recipes-petewall-net-gateway
+  http:
+    - route:
+        - destination:
+            host: mealie
+            port:
+              number: 80

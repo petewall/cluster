@@ -1,0 +1,15 @@
+---
+# Recipe images, backups, and user assets (/app/data). Block storage on iSCSI;
+# Mealie is single-replica so RWO is fine.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mealie-data
+  namespace: mealie
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: synology-iscsi
+  resources:
+    requests:
+      storage: 5Gi

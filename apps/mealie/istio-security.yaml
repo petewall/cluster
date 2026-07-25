@@ -1,0 +1,27 @@
+---
+# Require mTLS for all inbound traffic to mealie.
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: mealie
+spec:
+  mtls:
+    mode: STRICT
+---
+# Only the istio ingress gateway may reach mealie. Kubelet probes are
+# auto-exempted by istio's probe rewrite.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-ingressgateway
+  namespace: mealie
+spec:
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/istio-system/sa/istio-ingressgateway
+# NOTE: no REGISTRY_ONLY Sidecar here (unlike petewall-net) — Mealie's recipe
+# import fetches arbitrary external URLs, so it needs open egress.

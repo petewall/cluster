@@ -10,3 +10,4 @@ resources:
   - kiali-helm-release.yaml
   - petewall-net.yaml
   - home-petewall-net.yaml
+  - recipes-petewall-net.yaml
