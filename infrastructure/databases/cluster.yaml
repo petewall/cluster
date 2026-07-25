@@ -36,3 +36,16 @@ spec:
         superuser: false
         passwordSecret:
           name: homeassistant-db-password
+    services:
+      # Expose the primary on the LAN for the external Home Assistant (HAOS).
+      # In-cluster clients (Mealie) use postgres-rw.databases.svc instead.
+      # Connect with sslmode=require — CNPG serves TLS by default.
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: postgres-lb
+              annotations:
+                metallb.universe.tf/loadBalancerIPs: 192.168.1.252
+            spec:
+              type: LoadBalancer
