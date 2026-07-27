@@ -60,12 +60,13 @@ spec:
       type: ClusterIP
       port: 11434
 
-    # Sized for a 7B Q4 model on CPU (~5-6Gi resident) with headroom on the
-    # 16Gi nodes. No CPU limit (repo convention); requests reserve a core.
+    # Request matches the model's actual resident footprint (~10.5Gi, per KRR's
+    # right-sizing digest) so the scheduler bin-packs accurately; 12Gi limit
+    # leaves headroom on the 16Gi nodes. No CPU limit (repo convention).
     resources:
       requests:
         cpu: "1"
-        memory: 6Gi
+        memory: 10.5Gi
       limits:
         memory: 12Gi
 
