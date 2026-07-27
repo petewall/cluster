@@ -50,6 +50,18 @@ spec:
                 secretKeyRef:
                   name: mealie-db-password
                   key: password
+            # AI features via the in-cluster Ollama (OpenAI-compatible endpoint).
+            # Text-only — image services stay off (vision on CPU is impractical).
+            - name: OPENAI_BASE_URL
+              value: http://ollama.ollama.svc.cluster.local:11434/v1
+            - name: OPENAI_API_KEY
+              value: ollama  # required by Mealie but ignored by Ollama
+            - name: OPENAI_MODEL
+              value: qwen2.5:7b-instruct
+            - name: OPENAI_ENABLE_IMAGE_SERVICES
+              value: "false"
+            - name: OPENAI_REQUEST_TIMEOUT
+              value: "300"  # CPU inference is slow
           readinessProbe:
             httpGet:
               path: /api/app/about
