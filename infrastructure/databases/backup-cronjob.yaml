@@ -1,0 +1,80 @@
+---
+# Daily logical backups of the mealie + homeassistant databases to the NFS
+# backup share. Each DB is dumped as its owner (roles are non-superuser), using
+# the same sealed passwords the CNPG managed roles use. Custom format (-Fc) is
+# compressed and restores with pg_restore. Roles/databases themselves are
+# GitOps-managed, so globals aren't dumped. Retains 14 days.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: databases
+  annotations:
+    ignore-check.kube-linter.io/run-as-non-root: "writes dumps to an NFS-backed PVC where non-root ownership is unreliable; runs read-only-root-fs with all caps dropped otherwise"
+spec:
+  schedule: "0 3 * * *"  # daily 03:00 UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: pg-dump
+              image: ghcr.io/cloudnative-pg/postgresql:17  # match the cluster's PG major
+              securityContext:
+                readOnlyRootFilesystem: true
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              env:
+                - name: MEALIE_PW
+                  valueFrom:
+                    secretKeyRef:
+                      name: mealie-db-password
+                      key: password
+                - name: HA_PW
+                  valueFrom:
+                    secretKeyRef:
+                      name: homeassistant-db-password
+                      key: password
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  set -euo pipefail
+                  ts=$(date +%Y-%m-%d)
+                  dump() {
+                    local db=$1 pw=$2
+                    echo "dumping ${db}..."
+                    PGPASSWORD="$pw" pg_dump -h postgres-rw -U "$db" -d "$db" \
+                      -Fc -f "/backup/${db}-${ts}.dump.tmp"
+                    mv "/backup/${db}-${ts}.dump.tmp" "/backup/${db}-${ts}.dump"
+                    echo "  -> /backup/${db}-${ts}.dump ($(du -h "/backup/${db}-${ts}.dump" | cut -f1))"
+                  }
+                  dump mealie "$MEALIE_PW"
+                  dump homeassistant "$HA_PW"
+                  echo "pruning dumps older than 14 days..."
+                  find /backup -name '*.dump' -mtime +14 -delete
+                  echo "backup complete"
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: backup
+              persistentVolumeClaim:
+                claimName: postgres-backups
+            - name: tmp
+              emptyDir: {}

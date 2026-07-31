@@ -8,3 +8,5 @@ resources:
   - databases.yaml
   - mealie-db-password.yaml
   - homeassistant-db-password.yaml
+  - backup-pvc.yaml
+  - backup-cronjob.yaml

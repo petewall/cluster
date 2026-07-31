@@ -1,0 +1,15 @@
+---
+# Destination for logical dumps. NFS (not iSCSI) so the files are browsable on
+# the NAS and can be swept off-site by Synology Hyper Backup.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-backups
+  namespace: databases
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: synology-nfs
+  resources:
+    requests:
+      storage: 20Gi
