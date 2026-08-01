@@ -26,6 +26,11 @@ spec:
             - name: pg-dump
               image: ghcr.io/cloudnative-pg/postgresql:17  # match the cluster's PG major
               securityContext:
+                # Root: the synology-csi NFS share only permits root to write
+                # (the CNPG image otherwise defaults to uid 26). Read-only root
+                # FS + dropped caps keep it otherwise locked down.
+                runAsUser: 0
+                runAsGroup: 0
                 readOnlyRootFilesystem: true
                 allowPrivilegeEscalation: false
                 capabilities:
