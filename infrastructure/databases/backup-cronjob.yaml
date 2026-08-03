@@ -24,7 +24,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: pg-dump
-              image: ghcr.io/cloudnative-pg/postgresql:17  # match the cluster's PG major
+              image: ghcr.io/cloudnative-pg/postgresql:18  # match the cluster's PG major
               securityContext:
                 # Root: the synology-csi NFS share only permits root to write
                 # (the CNPG image otherwise defaults to uid 26). Read-only root
