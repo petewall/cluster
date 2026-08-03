@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: mealie
-          image: ghcr.io/mealie-recipes/mealie:v3.21.0
+          image: ghcr.io/mealie-recipes/mealie:v3.22.0
           # No restrictive securityContext: Mealie's entrypoint starts as root,
           # chowns /app/data, then drops to uid 911 — it needs CAP_CHOWN + setuid
           # (privilege escalation) to do so, so dropping caps / disabling
