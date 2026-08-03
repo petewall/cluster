@@ -1,0 +1,15 @@
+---
+# Holds the JSON file(s). NFS (RWX) so you can drop/update files directly on the
+# Synology (File Station/SMB) and nginx serves them read-only. Expandable.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data
+  namespace: data-petewall-net
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: synology-nfs
+  resources:
+    requests:
+      storage: 10Gi

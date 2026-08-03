@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: data-petewall-net
+data:
+  nginx.conf: |
+    # Read-only static file server for /data. Workers run as root so they can
+    # read the root-owned NFS share (the share is drwxr-x--- root:root); the pod
+    # is otherwise confined (dropped caps, read-only root FS, read-only mount).
+    user root;
+    worker_processes auto;
+    error_log /dev/stderr warn;
+    pid /var/run/nginx.pid;
+    events {
+      worker_connections 1024;
+    }
+    http {
+      include /etc/nginx/mime.types;
+      default_type application/octet-stream;
+      access_log /dev/stdout;
+      sendfile on;
+      tcp_nopush on;
+
+      # gzip: a 70KB+ JSON compresses to ~10-15KB. ETag/Last-Modified are on by
+      # default for static files, so clients get cheap 304s when unchanged.
+      gzip on;
+      gzip_types application/json text/plain;
+      gzip_min_length 1024;
+      gzip_vary on;
+
+      server {
+        listen 8080;
+        server_name _;
+        root /data;
+        index index.json;
+        autoindex off;  # never list the directory
+
+        # Always-200 health endpoint so the pod is Ready even before a file is
+        # dropped (serving / would 404 until then).
+        location = /healthz {
+          access_log off;
+          add_header Content-Type text/plain;
+          return 200 "ok\n";
+        }
+
+        location / {
+          try_files $uri $uri/ =404;
+        }
+      }
+    }
