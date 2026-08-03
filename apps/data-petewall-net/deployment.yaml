@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginx:1.27-alpine
+          image: nginx:1.31-alpine
           command: ["nginx", "-g", "daemon off;"]  # skip the entrypoint templating (read-only FS)
           securityContext:
             readOnlyRootFilesystem: true
