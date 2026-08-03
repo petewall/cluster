@@ -50,7 +50,7 @@ spec:
         - -o PermitRemoteOpen=*.ironwall.svc.cluster.local:5432
         - -ssh-key-file
         - /data/grafana_pdc
-        image: grafana/pdc-agent:0.0.61
+        image: grafana/pdc-agent:0.0.63
         imagePullPolicy: Always
         resources:
           limits:
