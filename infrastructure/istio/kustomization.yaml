@@ -11,4 +11,3 @@ resources:
   - petewall-net.yaml
   - home-petewall-net.yaml
   - recipes-petewall-net.yaml
-  - data-petewall-net.yaml
