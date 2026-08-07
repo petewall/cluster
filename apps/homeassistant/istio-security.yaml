@@ -1,0 +1,27 @@
+---
+# Require mTLS for all inbound traffic.
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: homeassistant
+spec:
+  mtls:
+    mode: STRICT
+---
+# Only the istio ingress gateway may reach HA. Kubelet probes are auto-exempted
+# by istio's probe rewrite.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-ingressgateway
+  namespace: homeassistant
+spec:
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/istio-system/sa/istio-ingressgateway
+# NOTE: no REGISTRY_ONLY Sidecar — HA needs open egress to reach integrations,
+# APIs, and the Postgres service in the databases namespace.

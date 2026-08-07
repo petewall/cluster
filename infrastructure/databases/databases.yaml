@@ -25,3 +25,17 @@ spec:
   name: homeassistant
   owner: homeassistant
   databaseReclaimPolicy: retain
+---
+# Separate database (isolated recorder data) but owned by the existing
+# homeassistant role — the in-cluster k8s HA reuses that credential.
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: homeassistant-k8s
+  namespace: databases
+spec:
+  cluster:
+    name: postgres
+  name: homeassistant_k8s
+  owner: homeassistant
+  databaseReclaimPolicy: retain

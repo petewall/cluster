@@ -1,0 +1,15 @@
+---
+# HA /config state (config, .storage registries, logs). Recorder history lives
+# in Postgres, so this stays small. Block storage on iSCSI (single replica).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: homeassistant
+  namespace: homeassistant
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: synology-iscsi
+  resources:
+    requests:
+      storage: 5Gi

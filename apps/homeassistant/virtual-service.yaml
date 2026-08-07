@@ -1,0 +1,17 @@
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: homeassistant
+  namespace: homeassistant
+spec:
+  hosts:
+    - home-k8s.petewall.net
+  gateways:
+    - istio-system/home-k8s-petewall-net-gateway
+  http:
+    - route:
+        - destination:
+            host: homeassistant
+            port:
+              number: 80

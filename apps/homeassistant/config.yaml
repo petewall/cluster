@@ -1,0 +1,26 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homeassistant-config
+  namespace: homeassistant
+data:
+  configuration.yaml: |
+    default_config:
+
+    # HA sits behind the istio ingress, so it must trust the proxy chain or it
+    # rejects requests. 127.0.0.0/8 = the istio sidecar; 10.1.0.0/16 = the pod
+    # network / ingress gateway.
+    http:
+      use_x_forwarded_for: true
+      trusted_proxies:
+        - 127.0.0.0/8
+        - 10.1.0.0/16
+
+    # Recorder history → the dedicated homeassistant_k8s Postgres DB (isolated
+    # from the external HAOS). The full connection string is in secrets.yaml.
+    recorder:
+      db_url: !secret recorder_db_url
+
+    logger:
+      default: warning

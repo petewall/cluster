@@ -54,15 +54,16 @@ spec:
                   set -euo pipefail
                   ts=$(date +%Y-%m-%d)
                   dump() {
-                    local db=$1 pw=$2
-                    echo "dumping ${db}..."
-                    PGPASSWORD="$pw" pg_dump -h postgres-rw -U "$db" -d "$db" \
+                    local db=$1 user=$2 pw=$3
+                    echo "dumping ${db} (as ${user})..."
+                    PGPASSWORD="$pw" pg_dump -h postgres-rw -U "$user" -d "$db" \
                       -Fc -f "/backup/${db}-${ts}.dump.tmp"
                     mv "/backup/${db}-${ts}.dump.tmp" "/backup/${db}-${ts}.dump"
                     echo "  -> /backup/${db}-${ts}.dump ($(du -h "/backup/${db}-${ts}.dump" | cut -f1))"
                   }
-                  dump mealie "$MEALIE_PW"
-                  dump homeassistant "$HA_PW"
+                  dump mealie mealie "$MEALIE_PW"
+                  dump homeassistant homeassistant "$HA_PW"
+                  dump homeassistant_k8s homeassistant "$HA_PW"
                   echo "pruning dumps older than 14 days..."
                   find /backup -name '*.dump' -mtime +14 -delete
                   echo "backup complete"

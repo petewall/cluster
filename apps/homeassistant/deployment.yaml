@@ -1,0 +1,77 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homeassistant
+  namespace: homeassistant
+  annotations:
+    ignore-check.kube-linter.io/run-as-non-root: "the Home Assistant image runs as root and manages /config at runtime; not built for non-root"
+    ignore-check.kube-linter.io/no-read-only-root-fs: "Home Assistant writes throughout /config and its runtime dirs; not built for a read-only root filesystem"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate  # single RWO volume — never two pods at once
+  selector:
+    matchLabels:
+      app: homeassistant
+  template:
+    metadata:
+      labels:
+        app: homeassistant
+    spec:
+      containers:
+        - name: homeassistant
+          image: ghcr.io/home-assistant/home-assistant:2026.7.4
+          ports:
+            - containerPort: 8123
+              name: http
+          # HA is slow to boot (esp. first run, DB schema). startupProbe gives
+          # it up to 5 min before liveness kicks in.
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 15
+            failureThreshold: 6
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 250m
+              memory: 768Mi
+            limits:
+              memory: 2Gi
+          volumeMounts:
+            - name: config-file
+              mountPath: /config/configuration.yaml
+              subPath: configuration.yaml
+              readOnly: true
+            - name: secrets
+              mountPath: /config/secrets.yaml
+              subPath: secrets.yaml
+              readOnly: true
+            - name: state
+              mountPath: /config
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: config-file
+          configMap:
+            name: homeassistant-config
+        - name: secrets
+          secret:
+            secretName: homeassistant-secrets
+        - name: state
+          persistentVolumeClaim:
+            claimName: homeassistant
+        - name: tmp
+          emptyDir: {}
