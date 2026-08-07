@@ -9,8 +9,9 @@ all: homeassistant-secrets.yaml
 # homeassistant_k8s database it owns. Username is the role name, hardcoded.
 # IMPORTANT: the password must be URL-safe (letters/digits) — it's embedded in
 # the db_url below.
-HA_DB_PASS = $(shell op read --account my.1password.com "op://Lab/Home Assistant Database/password")
-DB_URL = postgresql://homeassistant:$(HA_DB_PASS)@postgres-rw.databases.svc.cluster.local/homeassistant_k8s?sslmode=require
+HOMEASSISTANT_DB_USER = $(shell op read --account my.1password.com "op://Lab/Home Assistant Database/username")
+HOMEASSISTANT_DB_PASS = $(shell op read --account my.1password.com "op://Lab/Home Assistant Database/password")
+DB_URL = postgresql://$(HOMEASSISTANT_DB_USER):$(HOMEASSISTANT_DB_PASS)@postgres-rw.databases.svc.cluster.local/homeassistant_k8s?sslmode=require
 
 homeassistant-secrets.yaml:
 	kubectl create secret generic homeassistant-secrets \

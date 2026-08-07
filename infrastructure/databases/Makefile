@@ -9,6 +9,7 @@ all: mealie-db-password.yaml homeassistant-db-password.yaml
 # type kubernetes.io/basic-auth with username matching the role name, and the
 # cnpg.io/reload label so rotations apply without a restart.
 MEALIE_DB_PASS = $(shell op read --account my.1password.com "op://Lab/Mealie Database/password")
+HOMEASSISTANT_DB_USER = $(shell op read --account my.1password.com "op://Lab/Home Assistant Database/username")
 HOMEASSISTANT_DB_PASS = $(shell op read --account my.1password.com "op://Lab/Home Assistant Database/password")
 
 mealie-db-password.yaml:
@@ -25,7 +26,7 @@ homeassistant-db-password.yaml:
 	kubectl create secret generic homeassistant-db-password \
 		--namespace databases \
 		--type kubernetes.io/basic-auth \
-		--from-literal=username=homeassistant \
+		--from-literal=username=$(HOMEASSISTANT_DB_USER) \
 		--from-literal=password="$(HOMEASSISTANT_DB_PASS)" \
 		--dry-run=client -o yaml | \
 	kubectl label --local -f - cnpg.io/reload=true --dry-run=client -o yaml | \
