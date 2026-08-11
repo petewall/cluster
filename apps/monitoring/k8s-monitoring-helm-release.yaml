@@ -70,6 +70,13 @@ spec:
             namespaces: [monitoring]
             labelSelectors:
               app.kubernetes.io/name: alloy
+            # Keep only alloy_build_info — the alloy_component_* metrics were
+            # ~880 high-cardinality series we don't use.
+            metrics:
+              tuning:
+                useDefaultAllowList: false
+                includeMetrics:
+                  - alloy_build_info
 
       cert-manager:
         instances:
@@ -78,15 +85,8 @@ spec:
             labelSelectors:
               app.kubernetes.io/name: cert-manager
 
-      istio:
-        instances:
-          - name: istio
-            sidecarMetrics:
-              enabled: true
-            istiodMetrics:
-              enabled: true
-              serviceName: istiod
-              namespace: istio-system
+      # istio integration disabled — not using mesh dashboards; dropped ~500
+      # series (sidecar + istiod metrics).
 
     telemetryServices:
       kube-state-metrics:
