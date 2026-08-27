@@ -49,6 +49,15 @@ spec:
 
     clusterMetrics:
       enabled: true
+      kube-state-metrics:
+        # container_id (containerd://<hash>) is unique per container instance and
+        # changes on every restart, so it churns active series. Drop it from KSM
+        # metrics — it rides on kube_pod_container_info and isn't queried.
+        extraMetricProcessingRules: |
+          rule {
+            action = "labeldrop"
+            regex  = "container_id"
+          }
 
     hostMetrics:
       enabled: true
