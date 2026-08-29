@@ -43,6 +43,30 @@ echo iscsi_tcp | sudo tee /etc/modules-load.d/iscsi_tcp.conf
 sudo modprobe iscsi_tcp
 ```
 
+  * **Raise the iSCSI replacement timeout.** The default
+    `node.session.timeo.replacement_timeout` is **120s** — shorter than a NAS
+    reboot (DSM updates take minutes). When it expires the session is torn down,
+    which fails in-flight writes and makes the kernel remount the ext4 volume
+    **read-only**, crash-looping every iSCSI-backed pod (Postgres, HA, Mealie,
+    Ollama — see `TROUBLESHOOTING.md`). Raising it to 900s makes a NAS reboot
+    *pause* I/O and resume when the NAS returns, so the volumes self-recover:
+
+```bash
+# Default for future sessions:
+sudo sed -i 's/^\s*node.session.timeo.replacement_timeout\s*=.*/node.session.timeo.replacement_timeout = 900/' /etc/iscsi/iscsid.conf
+grep replacement_timeout /etc/iscsi/iscsid.conf          # verify it now reads 900
+
+# Apply to any already-discovered target records:
+sudo iscsiadm -m node -o update -n node.session.timeo.replacement_timeout -v 900
+
+sudo systemctl restart iscsid
+```
+
+  > Existing *sessions* keep their old value until the volume re-attaches — so on
+  > already-running nodes, either reboot the node (maintenance window) or
+  > `kubectl delete` the iSCSI-backed pods once, which re-logs-in with the new
+  > timeout. New sessions (and rebuilt nodes) pick it up automatically.
+
   * Add id_rsa.pub to ~/.ssh/authorized_keys
 
 ### Set up Microk8s
