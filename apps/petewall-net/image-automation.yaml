@@ -17,10 +17,12 @@ spec:
   imageRepositoryRef:
     name: petewall-net
   filterTags:
-    pattern: '^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}$'  # only YYYY.M.D tags; ignore latest/sha
+    pattern: '^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}-[0-9]{6}$'  # YYYY.M.D-HHMMSS build tags; ignore latest/sha
   policy:
     semver:
-      range: '>=0.0.0'
+      # -HHMMSS makes every tag a semver prerelease; the trailing -0 admits prereleases into the range (default ranges exclude them).
+      # Numeric component comparison handles the unpadded date + same-day time ordering.
+      range: '>=0.0.0-0'
 ---
 apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageUpdateAutomation
