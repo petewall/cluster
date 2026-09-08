@@ -63,6 +63,7 @@ spec:
       enabled: true
       linuxHosts:
         enabled: true
+        source: alloy
 
     clusterEvents:
       enabled: true
@@ -108,16 +109,6 @@ spec:
             memory: 64Mi
           limits:
             memory: 128Mi
-      node-exporter:
-        deploy: true
-        # Passed through to the prometheus-node-exporter subchart; satisfies
-        # kube-linter's cpu-request / memory-limit checks.
-        resources:
-          requests:
-            cpu: 10m
-            memory: 32Mi
-          limits:
-            memory: 64Mi
 
     alloy-operator:
       # Passed through to the alloy-operator subchart. Sized to observed
@@ -140,4 +131,4 @@ spec:
 
     collectors:
       alloy:
-        presets: [clustered, filesystem-log-reader, daemonset]
+        presets: [clustered, filesystem-log-reader, linux-host-monitor, daemonset]
