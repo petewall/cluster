@@ -9,6 +9,14 @@ sealed-secrets.cert: ## Fetch the sealed secrets certificate for sealing new or 
 
 ##@ GitOps
 
+export KUBECONFIG ?= kubeconfig.yaml
+
+.PHONY: sync
+sync: ## Force Flux to reconcile with git now (pull latest, then re-apply infrastructure + apps).
+	flux reconcile source git flux-system
+	flux reconcile kustomization infrastructure
+	flux reconcile kustomization apps
+
 .PHONY: bootstrap
 bootstrap: ## Run Flux Bootstrap to enable GitOps.
 	GITHUB_TOKEN=$(shell op read --account my.1password.com "op://Lab/Kubernetes Cluster Flux Bootstrap Token/password") \
