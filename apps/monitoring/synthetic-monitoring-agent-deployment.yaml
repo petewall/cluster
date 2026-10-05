@@ -37,7 +37,7 @@ spec:
             secretKeyRef:
               key: api-server
               name: synthetic-monitoring-api
-        image: grafana/synthetic-monitoring-agent:v0.65.0
+        image: grafana/synthetic-monitoring-agent:v0.66.0
         name: agent
         ports:
         - containerPort: 4050
