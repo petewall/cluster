@@ -19,7 +19,7 @@ spec:
         runAsGroup: 101
       containers:
         - name: nginx
-          image: ghcr.io/petewall/petewall.net:2026.10.7-185535 # {"$imagepolicy": "flux-system:petewall-net"}
+          image: ghcr.io/petewall/petewall.net:2026.10.8-171825 # {"$imagepolicy": "flux-system:petewall-net"}
           securityContext:
             readOnlyRootFilesystem: true
             allowPrivilegeEscalation: false
