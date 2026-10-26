@@ -1,0 +1,18 @@
+---
+# All persistent state lives under /app/data: settings (JSON), pages, schedules,
+# logs, render cache, gallery photos, and backups — file-shaped, no embedded
+# database. So NFS, not iSCSI: a file store on NFS survives a NAS reboot (hard
+# mounts block then resume) instead of remounting read-only like iSCSI block
+# volumes do (see TROUBLESHOOTING.md). Single-replica + Recreate keeps one writer.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tesserae-data
+  namespace: tesserae
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: synology-nfs
+  resources:
+    requests:
+      storage: 5Gi

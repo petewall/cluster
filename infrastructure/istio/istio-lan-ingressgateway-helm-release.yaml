@@ -1,0 +1,62 @@
+---
+# Second istio ingress gateway for LAN-only services. Identical chart to the
+# public istio-ingressgateway, but its LoadBalancer takes 192.168.1.253 — an IP
+# the router does NOT port-forward — so anything bound to this gateway is
+# reachable from the LAN and unreachable from the internet. Its pods carry the
+# label `istio: lan-ingressgateway` (chart derives it from the release name),
+# which LAN Gateway resources select on (see internal-petewall-net.yaml).
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: istio-lan-ingressgateway
+  namespace: istio-system
+spec:
+  interval: 1h
+  dependsOn:
+    - name: istiod
+  chart:
+    spec:
+      chart: gateway
+      version: 1.30.7
+      sourceRef:
+        kind: HelmRepository
+        name: istio
+  values:
+    name: istio-lan-ingressgateway
+    service:
+      type: LoadBalancer
+      # Preserve source client IPs (lets a future AuthorizationPolicy filter on
+      # real LAN client IPs), and pin the un-forwarded MetalLB IP.
+      externalTrafficPolicy: Local
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: 192.168.1.253
+      ports:
+        - name: status-port
+          port: 15021
+          protocol: TCP
+          targetPort: 15021
+        - name: http2
+          port: 80
+          protocol: TCP
+          targetPort: 80
+        - name: https
+          port: 443
+          protocol: TCP
+          targetPort: 443
+  # Same linter exceptions as the public gateway: the proxy image is the "auto"
+  # sentinel (injector rewrites it to a pinned tag) and the pod sets
+  # net.ipv4.ip_unprivileged_port_start so the non-root proxy can bind 80/443.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: istio-lan-ingressgateway
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: istio-lan-ingressgateway
+                annotations:
+                  ignore-check.kube-linter.io/latest-tag: "proxy image is 'auto'; the injector rewrites it to a pinned istio/proxyv2 tag"
+                  ignore-check.kube-linter.io/unsafe-sysctls: "ip_unprivileged_port_start lets the non-root proxy bind 80/443"

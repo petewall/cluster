@@ -1,0 +1,76 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tesserae
+  namespace: tesserae
+  annotations:
+    # Upstream image is a Debian + headless-Chromium render stack that runs as
+    # root and writes throughout the filesystem; it isn't built for non-root or
+    # a read-only root filesystem. Same pragmatic stance as the Mealie image.
+    ignore-check.kube-linter.io/run-as-non-root: "upstream tesserae image renders with Chromium as root; not built for non-root"
+    ignore-check.kube-linter.io/no-read-only-root-fs: "tesserae writes cache/render state outside /app/data; not built for a read-only root filesystem"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate  # single RWO volume — don't run two pods at once
+  selector:
+    matchLabels:
+      app: tesserae
+  template:
+    metadata:
+      labels:
+        app: tesserae
+    spec:
+      containers:
+        - name: tesserae
+          image: ghcr.io/dmellok/tesserae:v0.480.0
+          ports:
+            - containerPort: 8765
+              name: http
+            - containerPort: 1883
+              name: mqtt  # built-in amqtt broker; optional (REST transport is the default)
+          env:
+            - name: TESSERAE_IN_DOCKER
+              value: "1"
+            - name: TZ
+              value: America/Chicago
+            # Encryption key for stored connector secrets. Set explicitly (sealed)
+            # so it's stable across data loss / restores — otherwise the server
+            # generates one into /app/data and connector creds must be re-entered
+            # if that's ever lost. See Makefile + tesserae-secret-key.yaml.
+            - name: TESSERAE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tesserae-secret-key
+                  key: secret-key
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              # Headless Chromium renders spike memory; give generous headroom.
+              memory: 1536Mi
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+            - name: dshm
+              mountPath: /dev/shm  # Chromium needs a real shared-memory mount or it crashes
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: tesserae-data
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi

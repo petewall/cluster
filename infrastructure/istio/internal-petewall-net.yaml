@@ -1,0 +1,47 @@
+---
+# Wildcard cert for the LAN-only tier. DNS-01 (Cloudflare) issues it without the
+# host needing to be publicly reachable — only a TXT record in the petewall.net
+# zone — so *.internal.petewall.net can resolve to the private LAN gateway IP
+# (192.168.1.253, DNS-only record) and still get a valid public cert.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: internal-petewall-net-tls
+  namespace: istio-system
+spec:
+  secretName: internal-petewall-net-tls
+  dnsNames:
+    - '*.internal.petewall.net'
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+---
+# LAN-only Gateway: bound to the lan-ingressgateway (192.168.1.253, un-forwarded)
+# and serving any *.internal.petewall.net host. Add a VirtualService in an app
+# (gateway: istio-system/internal-petewall-net-gateway) to expose it on the LAN.
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: internal-petewall-net-gateway
+  namespace: istio-system
+spec:
+  selector:
+    istio: lan-ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - '*.internal.petewall.net'
+      tls:
+        mode: SIMPLE
+        credentialName: internal-petewall-net-tls
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - '*.internal.petewall.net'
+      tls:
+        httpsRedirect: true

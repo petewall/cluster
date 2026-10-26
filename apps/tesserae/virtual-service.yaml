@@ -1,0 +1,21 @@
+---
+# LAN-only exposure via the internal gateway (192.168.1.253). Reachable from the
+# LAN at https://tesserae.internal.petewall.net; not port-forwarded, so not from
+# the internet. Routing to the tesserae service works even while the namespace
+# is unmeshed (gateway → pod is plaintext until the mesh/mTLS step lands).
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: tesserae
+  namespace: tesserae
+spec:
+  hosts:
+    - tesserae.internal.petewall.net
+  gateways:
+    - istio-system/internal-petewall-net-gateway
+  http:
+    - route:
+        - destination:
+            host: tesserae
+            port:
+              number: 80
