@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: tesserae
-          image: ghcr.io/dmellok/tesserae:v0.480.0
+          image: ghcr.io/dmellok/tesserae:0.480.0
           ports:
             - containerPort: 8765
               name: http
