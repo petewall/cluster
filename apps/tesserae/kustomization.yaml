@@ -7,4 +7,5 @@ resources:
   - deployment.yaml
   - service.yaml
   - virtual-service.yaml
+  - istio-security.yaml
   - tesserae-secret-key.yaml

@@ -1,9 +1,11 @@
 ---
-# Not meshed yet (no istio-injection label): the tesserae admin UI needs to be
-# reachable via `kubectl port-forward` for first-run setup, which STRICT mTLS
-# would block. Add the mesh + a LAN-only gateway as a follow-up (see README /
-# IDEAS). It's a LAN-facing admin surface — deliberately no public ingress.
+# Meshed: sidecars enforce STRICT mTLS and only the LAN ingress gateway may
+# connect (see istio-security.yaml). Side effect: `kubectl port-forward` to pods
+# here no longer works (kubelet can't present a mesh identity); use
+# https://tesserae.internal.petewall.net from the LAN instead.
 apiVersion: v1
 kind: Namespace
 metadata:
   name: tesserae
+  labels:
+    istio-injection: enabled

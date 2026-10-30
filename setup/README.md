@@ -83,6 +83,31 @@ echo "alias kubectl='sudo microk8s kubectl'" >> ~/.bash_aliases
 
 > **Note:** Ingress is handled by Istio, deployed via GitOps in `infrastructure/istio/`.
 
+#### MetalLB IP allocations
+
+Every address is pinned in git with a `metallb.universe.tf/loadBalancerIPs` annotation, so a rebuilt
+cluster gets the same IPs back once Flux reconciles. The router and DNS are *outside* git, so they
+must be redone by hand:
+
+| IP | Service | Defined in | Outside-the-cluster setup |
+| --- | --- | --- | --- |
+| `192.168.1.251` | `istio-ingressgateway` (public) | `infrastructure/istio/istio-ingressgateway-helm-release.yaml` | Router port-forwards 80/443 to this IP. Public Cloudflare DNS records (`petewall.net`, `home`, `recipes`, `home.k8s`) point at the home WAN IP. |
+| `192.168.1.252` | `postgres-lb` (CloudNativePG) | `infrastructure/databases/cluster.yaml` | None. LAN access to Postgres only. |
+| `192.168.1.253` | `istio-lan-ingressgateway` (LAN-only) | `infrastructure/istio/istio-lan-ingressgateway-helm-release.yaml` | Cloudflare **DNS-only** (grey cloud) A records for each `*.internal.petewall.net` host → `192.168.1.253`. Do **not** port-forward this IP, since not being forwarded is what keeps it LAN-only. |
+| `192.168.1.254` | *free* | | |
+
+Moving or re-adding an address:
+
+1. Change the annotation in git (or pick `.254` for a new service) and let Flux apply it.
+2. Update anything in the last column. For `.253`, that is one Cloudflare A record per LAN hostname.
+3. Keep the pool (`enable metallb:192.168.1.251-192.168.1.254`) outside the router's DHCP range
+   (`.1`-`.250`), or the router can hand a LoadBalancer IP to another device.
+
+The LAN gateway serves a wildcard cert for `*.internal.petewall.net`, issued via DNS-01 (Cloudflare API
+token in the `cloudflare` secret in `cert-manager`, which needs `Zone:Zone:Read` and `Zone:DNS:Edit`).
+To expose another LAN service, add a `VirtualService` on gateway
+`istio-system/internal-petewall-net-gateway` and a DNS record; no new cert is needed.
+
 ### Add nodes
 
 1. On the main-node, make generate the token required to join the cluster:

@@ -1,0 +1,28 @@
+---
+# Require mTLS for all inbound traffic.
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: tesserae
+spec:
+  mtls:
+    mode: STRICT
+---
+# Only the LAN ingress gateway may reach tesserae (not the public gateway, and
+# nothing else in the cluster). Kubelet probes are auto-exempted by istio's
+# probe rewrite.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-lan-ingressgateway
+  namespace: tesserae
+spec:
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/istio-system/sa/istio-lan-ingressgateway
+# NOTE: no REGISTRY_ONLY Sidecar. tesserae needs open egress for api.tesserae.ink
+# update checks and whatever connectors get configured.
