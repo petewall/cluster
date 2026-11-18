@@ -2,7 +2,7 @@ SHELL := /bin/bash
 
 .PHONY: all
 
-all: grafana-cloud-secret.yaml synthetic-monitoring-secret.yaml synthetic-monitoring-agent-deployment.yaml
+all: grafana-cloud-secret.yaml grafana-cloud-fleet-management-secret.yaml synthetic-monitoring-secret.yaml synthetic-monitoring-agent-deployment.yaml
 
 ##@ Grafana Cloud
 grafana-cloud-secret.yaml:
@@ -14,6 +14,15 @@ grafana-cloud-secret.yaml:
 		--from-literal=logsUrl=$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Logs/website")./loki/api/v1/push \
 		--from-literal=logsUsername=$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Logs/username") \
 		--from-literal=logsPassword=$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Logs/password") \
+		-o yaml --dry-run=client | \
+	kubeseal --cert ../../sealed-secrets.cert --format yaml > $@
+
+grafana-cloud-fleet-management-secret.yaml:
+	kubectl create secret generic grafana-cloud-fleet-management \
+		--namespace monitoring \
+		--from-literal=url="$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Fleet Management/website")" \
+		--from-literal=username="$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Fleet Management/username")" \
+		--from-literal=password="$(shell op read --account my.1password.com "op://Lab/Grafana Cloud Fleet Management/password")" \
 		-o yaml --dry-run=client | \
 	kubeseal --cert ../../sealed-secrets.cert --format yaml > $@
 
