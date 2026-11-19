@@ -24,17 +24,10 @@ jobs:
       - name: Render HelmReleases to plain manifests
         run: make render
 
-      - name: Scan repo with kube-linter
+      - name: Lint manifests
         uses: stackrox/kube-linter-action@v1.0.7
         with:
           directory: .temp/rendered
           config: .kube-linter.yaml
-          format: sarif
-          output-file: .temp/kube-linter.sarif
+          format: plain
 
-      - name: Upload kube-linter SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: .temp/kube-linter.sarif
-          category: kube-linter
