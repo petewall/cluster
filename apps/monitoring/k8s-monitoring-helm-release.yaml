@@ -63,7 +63,6 @@ spec:
       enabled: true
       linuxHosts:
         enabled: true
-        source: alloy
 
     clusterEvents:
       enabled: true
@@ -73,7 +72,7 @@ spec:
       enabled: true
 
     integrations:
-      collector: alloy
+      collector: alloy-daemonset
       alloy:
         instances:
           - name: alloy
@@ -99,6 +98,9 @@ spec:
       # series (sidecar + istiod metrics).
 
     telemetryServices:
+      node-exporter:
+        deploy: true
+    
       kube-state-metrics:
         deploy: true
         # Passed through to the kube-state-metrics subchart. Sized to observed
@@ -109,6 +111,40 @@ spec:
             memory: 64Mi
           limits:
             memory: 128Mi
+    
+      beyla:
+        deploy: true
+        k8sCache:
+          replicas: 1
+    
+      opencost:
+        deploy: true
+        metricsSource: custom
+        opencost:
+          exporter:
+            defaultClusterId: wallhouse
+          prometheus:
+            username: "622181"
+            password: "add"
+            external:
+              url: "https://prometheus-prod-10-prod-us-central-0.grafana.net/api/prom"
+    
+      kepler:
+        deploy: true
+    
+      k8s-manifest-tail:
+        deploy: true
+        config:
+          objects:
+            - { apiVersion: v1, kind: Pod }
+            - { apiVersion: apps/v1, kind: Deployment }
+            - { apiVersion: apps/v1, kind: StatefulSet }
+            - { apiVersion: apps/v1, kind: DaemonSet }
+    
+      sdkInjector:
+        deploy: true
+        allowedConfigMapWriters: system:serviceaccount:monitoring:grafana-cloud-alloy-daemonset,system:serviceaccount:monitoring:grafana-cloud-alloy-deployment
+
 
     alloy-operator:
       # Passed through to the alloy-operator subchart. Sized to observed
@@ -130,5 +166,22 @@ spec:
             memory: 64Mi
 
     collectors:
-      alloy:
-        presets: [clustered, filesystem-log-reader, linux-host-monitor, daemonset]
+      alloy-daemonset:
+        presets: [root, host-network, host-storage, host-cgroup, clustered, service-discovery, filesystem-log-reader, daemonset]
+        alloy:
+          extraEnv:
+            - name: GCLOUD_RW_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-cloud-fleet-management
+                  key: password
+                  optional: false
+        remoteConfig:
+          enabled: true
+          urlFrom: nonsensitive(remote.kubernetes.secret.alloy_remote_cfg.data["url"])
+          auth:
+            type: basic
+          secret:
+            create: false
+            name: grafana-cloud-fleet-management
+            namespace: monitoring
