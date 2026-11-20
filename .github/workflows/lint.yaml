@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   kube-linter:
-    name: kube-linter (report-only)
+    name: kube-linter
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
