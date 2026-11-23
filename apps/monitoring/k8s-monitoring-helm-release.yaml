@@ -178,7 +178,7 @@ spec:
                   optional: false
         remoteConfig:
           enabled: true
-          urlFrom: nonsensitive(remote.kubernetes.secret.alloy_remote_cfg.data["url"])
+          urlFrom: nonsensitive(remote.kubernetes.secret.alloy_daemonset_remote_cfg.data["url"])
           auth:
             type: basic
           secret:
