@@ -124,8 +124,9 @@ spec:
           exporter:
             defaultClusterId: wallhouse
           prometheus:
-            username: "622181"
-            password: "add"
+            existingSecretName: grafana-cloud
+            username_key: metricsUsername
+            password_key: metricsPassword
             external:
               url: "https://prometheus-prod-10-prod-us-central-0.grafana.net/api/prom"
     
