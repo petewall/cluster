@@ -68,7 +68,7 @@ spec:
           replicas: 1
     
       opencost:
-        deploy: true
+        deploy: false
         metricsSource: custom
         opencost:
           exporter:
@@ -81,10 +81,10 @@ spec:
               url: "https://prometheus-prod-10-prod-us-central-0.grafana.net/api/prom"
     
       kepler:
-        deploy: true
+        deploy: false
     
       k8s-manifest-tail:
-        deploy: true
+        deploy: false
         config:
           objects:
             - { apiVersion: v1, kind: Pod }
